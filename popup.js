@@ -8,13 +8,78 @@ chrome.runtime.getBackgroundPage(function(bg) {
   // .textContent = bg.text;
   for (key in bg.tabs) {
     console.log(bg.tabs[key]);
+    var tab = bg.tabs[key]["Tab"];
+    var date = bg.tabs[key]["Date"];
+    var alarm = bg.tabs[key]["Alarm"];
     var row = table.insertRow(-1);
     var cell1 = row.insertCell(0);
     var cell2 = row.insertCell(1);
-    cell1.innerHTML = "<img src=" + bg.tabs[key].favIconUrl + ">";
-    cell2.innerHTML = bg.tabs[key].title;
+    var cell3 = row.insertCell(2);
+    cell1.innerHTML = "<img src=" + tab.favIconUrl + ">";
+    cell2.innerHTML = tab.title;
+    setTimer(date, cell3);
   }
 });
+
+function setTimer(date, cell3) {
+  // Set the date we're counting down to
+  var countDownDate = date + 10000;
+
+  // Update the count down every 1 second
+  var x = setInterval(function() {
+
+    // Get todays date and time
+    var now = Date.now();
+
+    // Find the distance between now an the count down date
+    var distance = countDownDate - now;
+
+    // Time calculations for days, hours, minutes and seconds
+    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    // Display the result in the element with id="demo"
+    cell3.innerHTML = days + "d " + hours + "h "
+    + minutes + "m " + seconds + "s ";
+
+    // If the count down is finished, write some text 
+    if (distance < 5000) {
+      clearInterval(x);
+      cell3.innerHTML = "A few seconds left";
+    }
+  }, 1000);
+}
+
+document.getElementById("tabs-button").addEventListener("click", function(){
+  openTab(event, "Tabs");
+});
+
+document.getElementById("settings-button").addEventListener("click", function(){
+  openTab(event, "Settings");
+});
+
+function openTab(evt, tabName) {
+  // Declare all variables
+  var i, tabcontent, tablinks;
+
+  // Get all elements with class="tabcontent" and hide them
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+      tabcontent[i].style.display = "none";
+  }
+
+  // Get all elements with class="tablinks" and remove the class "active"
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+      tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+
+  // Show the current tab, and add an "active" class to the button that opened the tab
+  document.getElementById(tabName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
 
 /**
  * Get the current URL.

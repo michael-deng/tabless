@@ -52,11 +52,11 @@ function setTimer(date, cell3) {
   }, 1000);
 }
 
-document.getElementById("tabs-button").addEventListener("click", function(){
+document.getElementById("tabs-btn").addEventListener("click", function(){
   openTab(event, "Tabs");
 });
 
-document.getElementById("settings-button").addEventListener("click", function(){
+document.getElementById("settings-btn").addEventListener("click", function(){
   openTab(event, "Settings");
 });
 
@@ -67,7 +67,7 @@ function openTab(evt, tabName) {
   // Get all elements with class="tabcontent" and hide them
   tabcontent = document.getElementsByClassName("tabcontent");
   for (i = 0; i < tabcontent.length; i++) {
-      tabcontent[i].style.display = "none";
+      tabcontent[i].className = tabcontent[i].className.replace(" active", "");
   }
 
   // Get all elements with class="tablinks" and remove the class "active"
@@ -77,7 +77,7 @@ function openTab(evt, tabName) {
   }
 
   // Show the current tab, and add an "active" class to the button that opened the tab
-  document.getElementById(tabName).style.display = "block";
+  document.getElementById(tabName).className += " active"
   evt.currentTarget.className += " active";
 }
 

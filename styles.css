@@ -70,3 +70,7 @@ div.tab button.active {
   border: 1px solid #ccc;
   border-top: none;
 }
+
+div.active {
+  display: block;
+}

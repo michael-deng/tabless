@@ -15,6 +15,7 @@
       - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
      -->
     <link rel="stylesheet" href="styles.css">
+    <script src="https://use.fontawesome.com/5ea7d79d6a.js"></script>
   </head>
   <body>
     <div class="tab">
@@ -23,15 +24,18 @@
     </div>
 
     <div id="Tabs" class="tabcontent active">
-      <h3>Tabs</h3>
       <table id="tabs-table"></table>
       <div id="status"></div>
-      <img id="image-result" hidden>
     </div>
 
     <div id="Settings" class="tabcontent">
-      <h3>Settings</h3>
-      <p>Paris is the capital of France.</p> 
+      <form>
+        How long to retain inactive tabs?<br>
+        <input type="text" name="retain-time"><br>
+        Allow how many open tabs before starting auto-close?<br>
+        <input type="text" name="allowed-tabs"><br><br>
+        <input type="submit" value="Save">
+      </form>
     </div>
 
     <script src="popup.js"></script>

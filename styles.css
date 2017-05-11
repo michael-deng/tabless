@@ -1,8 +1,8 @@
 body {
   font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
   font-size: 100%;
-  width: 500px;
-  height: 500px;
+  width: 540px;
+  height: 600px;
 }
 
 #status {
@@ -33,13 +33,12 @@ body {
   width: 14px;
 }
 
+
 /* Tabbed menu in popup */
 
 /* Style the tab */
 div.tab {
   overflow: hidden;
-  border: 1px solid #ccc;
-  background-color: #f1f1f1;
 }
 
 /* Style the buttons inside the tab */
@@ -67,10 +66,44 @@ div.tab button.active {
 .tabcontent {
   display: none;
   padding: 6px 12px;
-  border: 1px solid #ccc;
-  border-top: none;
 }
 
 div.active {
   display: block;
 }
+
+
+/* Animated lock icon */
+
+.fa {
+  font-weight: 300;
+  margin: 0;
+  padding: 0;
+  direction: ltr;
+  font-size: 2rem;
+}
+
+.content {
+  text-align: center;
+  line-height: 30px;
+}
+
+.panel {
+  position: relative;
+  background-color: black;
+  color: white;
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+}
+/*.panel:hover {
+  color: black;
+  background-color: white;
+  transition: color 0.4s ease-out, background 0.4s ease-out;
+}
+.panel:first-child {
+  margin-left: 0;
+}
+.panel:last-child {
+  margin-right: 0;
+}*/

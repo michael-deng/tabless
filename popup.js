@@ -7,7 +7,7 @@ chrome.runtime.getBackgroundPage(function(bg) {
   var table = document.getElementById('tabs-table');
   // .textContent = bg.text;
   for (key in bg.tabs) {
-    console.log(bg.tabs[key]);
+    // console.log(bg.tabs[key]);
     var tab = bg.tabs[key]["Tab"];
     var date = bg.tabs[key]["Date"];
     var alarm = bg.tabs[key]["Alarm"];
@@ -15,9 +15,17 @@ chrome.runtime.getBackgroundPage(function(bg) {
     var cell1 = row.insertCell(0);
     var cell2 = row.insertCell(1);
     var cell3 = row.insertCell(2);
+    var cell4 = row.insertCell(3);
+
     cell1.innerHTML = "<img src=" + tab.favIconUrl + ">";
     cell2.innerHTML = tab.title;
     setTimer(date, cell3);
+
+    cell4.innerHTML = "<div class=\"panel\"><div class=\"content\"><i class=\"fa fa-lock\"></i></div></div>";
+    var panel = cell4.getElementsByClassName("panel")[0];
+    panel.addEventListener("click", function() {
+      toggleLock(event);
+    });
   }
 });
 
@@ -52,11 +60,11 @@ function setTimer(date, cell3) {
   }, 1000);
 }
 
-document.getElementById("tabs-btn").addEventListener("click", function(){
+document.getElementById("tabs-btn").addEventListener("click", function() {
   openTab(event, "Tabs");
 });
 
-document.getElementById("settings-btn").addEventListener("click", function(){
+document.getElementById("settings-btn").addEventListener("click", function() {
   openTab(event, "Settings");
 });
 
@@ -67,18 +75,30 @@ function openTab(evt, tabName) {
   // Get all elements with class="tabcontent" and hide them
   tabcontent = document.getElementsByClassName("tabcontent");
   for (i = 0; i < tabcontent.length; i++) {
-      tabcontent[i].className = tabcontent[i].className.replace(" active", "");
+    tabcontent[i].className = tabcontent[i].className.replace(" active", "");
   }
 
   // Get all elements with class="tablinks" and remove the class "active"
   tablinks = document.getElementsByClassName("tablinks");
   for (i = 0; i < tablinks.length; i++) {
-      tablinks[i].className = tablinks[i].className.replace(" active", "");
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
   }
 
   // Show the current tab, and add an "active" class to the button that opened the tab
   document.getElementById(tabName).className += " active"
   evt.currentTarget.className += " active";
+}
+
+function toggleLock(evt) {
+  var panel = evt.currentTarget;
+  var icon = panel.getElementsByTagName("i")[0];
+  if (icon.classList.contains("fa-lock")) {
+    
+  } else {
+    // Lock
+  }
+  icon.classList.toggle("fa-lock");
+  icon.classList.toggle("fa-unlock");
 }
 
 /**

@@ -5,9 +5,10 @@ chrome.tabs.query({}, function(tabList) {
 		var tab = tabList[i];
 		tabs[tab.id] = {};
 		tabs[tab.id]["Tab"] = tab;
-		if (!("Date" in tabs[tab.id] || "Alarm" in tabs[tab.id])) {
+		if (!("Date" in tabs[tab.id] || "Alarm" in tabs[tab.id] || "Locked" in tabs[tab.id])) {
 			tabs[tab.id]["Date"] = Date.now();
 			tabs[tab.id]["Alarm"] = chrome.alarms.create('', {delayInMinutes: 1});
+			tabs[tab.id]["Locked"] = false;
 		}
 	}
 });
@@ -17,9 +18,10 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	// text = tab.url;
 	tabs[tabId] = {};
 	tabs[tabId]["Tab"] = tab;
-	if (!("Date" in tabs[tabId] || "Alarm" in tabs[tabId])) {
-		tabs[tabId]["Date"] = Date.now();
-		tabs[tabId]["Alarm"] = chrome.alarms.create('', {delayInMinutes: 1});
+	if (!("Date" in tabs[tab.id] || "Alarm" in tabs[tab.id] || "Locked" in tabs[tab.id])) {
+		tabs[tab.id]["Date"] = Date.now();
+		tabs[tab.id]["Alarm"] = chrome.alarms.create('', {delayInMinutes: 1});
+		tabs[tab.id]["Locked"] = false;
 	}
 });
 

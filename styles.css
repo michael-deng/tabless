@@ -14,7 +14,6 @@ body {
 
 #tabs-table tr td {
   max-width: 360px;
-  font-size: 0.8em;
   padding: 5px;
 }
 
@@ -28,6 +27,13 @@ body {
   white-space: pre;
   text-overflow: ellipsis;
   overflow: hidden;
+  font-size: 0.9em;
+}
+
+.tab-timer {
+  margin-top: 3px;
+  font-size: 0.8em;
+  color: #808080;
 }
 
 
@@ -146,7 +152,6 @@ https://tympanus.net/codrops/2012/09/13/button-switches-with-checkboxes-and-css3
 /* Container */
 .switch {
   height: 28px;
-  margin: 20px auto;
   position: relative;
   width: 56px;
 }

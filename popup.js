@@ -18,68 +18,72 @@ chrome.runtime.getBackgroundPage(function(bg) {
     var cell3 = row.insertCell(2);
 
     cell1.innerHTML = "<img src=" + tab.favIconUrl + ">";
-    cell2.innerHTML = "<div class=\"tab-title\">" + tab.title + "</div><div class=\"tab-time\"></div>";
-    var timeLeft = cell2.getElementsByClassName("tab-time")[0];
-    setTimer(date, timeLeft);
+    cell2.innerHTML = "<div class=\"tab-title\">" + tab.title + "</div><div class=\"tab-timer\"></div>";
+    var tabTimer = cell2.getElementsByClassName("tab-timer")[0];
+    countdown(date, tabTimer);
 
     // cell4.innerHTML = "<div class=\"panel\"><div class=\"content\"><i class=\"fa\"></i></div></div>";
-    cell3.innerHTML = "<div class=\"switch\"><input type=\"checkbox\" checked><label><span class=\"fontawesome-ok\"></span><span class=\"fontawesome-remove\"></span><div></div></label></div>"
-    // var panel = cell4.getElementsByClassName("panel")[0];
-    // panel.id = key;
-    // panel.addEventListener("click", toggleLock);
+    cell3.innerHTML = "<div class=\"switch\"><input id=" + key + " type=\"checkbox\"><label><span class=\"fontawesome-ok\"></span><span class=\"fontawesome-remove\"></span><div></div></label></div>"
+    var checkbox = cell3.getElementsByTagName("input")[0];
 
-    // var icon = panel.getElementsByTagName("i")[0];
-    // if (locked) {
-    //   icon.classList.toggle("fa-lock");
-    // } else {
-    //   icon.classList.toggle("fa-unlock");
-    // }
+    if (!locked) {
+      checkbox.checked = true;
+    }
+
+    // Use let to get a block-scoped id that can be passed to event listener
+    let tabId = key;
+
+    checkbox.addEventListener("change", function () {
+      toggleLock(tabId);
+    });
+
   }
 
-  function toggleLock() {
-    var panel = this;
-    var tabId = Number(panel.id);
-    var icon = panel.getElementsByTagName("i")[0];
-    if (icon.classList.contains("fa-lock")) {
+  function toggleLock(tabId) {
+    var checkbox = this;
+    if (bg.tabs[tabId]["Locked"] == true) {
       bg.tabs[tabId]["Locked"] = false;
     } else {
       bg.tabs[tabId]["Locked"] = true;
     }
-    icon.classList.toggle("fa-lock");
-    icon.classList.toggle("fa-unlock");
   }
 });
 
-function setTimer(date, element) {
+function countdown(date, element) {
   // Set the date we're counting down to
   var countDownDate = date + 10000;
+
+  setTimer(countDownDate, element);
 
   // Update the count down every 1 second
   var x = setInterval(function() {
 
-    // Get todays date and time
-    var now = Date.now();
+    setTimer(countDownDate, element);
 
-    // Find the distance between now an the count down date
-    var distance = countDownDate - now;
-
-    // Time calculations for days, hours, minutes and seconds
-    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-    // Display the result in the element with id="demo"
-    element.innerHTML = days + "d " + hours + "h "
-    + minutes + "m " + seconds + "s ";
-
-    // If the count down is finished, write some text 
-    if (distance < 5000) {
-      clearInterval(x);
-      element.innerHTML = "A few seconds left";
-    }
   }, 1000);
 }
+
+function setTimer(countDownDate, element) {
+  // Find the distance between now an the count down date
+  var distance = countDownDate - Date.now();
+
+  // Time calculations for days, hours, minutes and seconds
+  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+  // Display the result in the element with id="demo"
+  element.innerHTML = days + "d " + hours + "h "
+  + minutes + "m " + seconds + "s ";
+  
+  // If the count down is finished, write some text 
+  if (distance < 5000) {
+    clearInterval(this);
+    element.innerHTML = "A few seconds left";
+  }
+}
+
 
 document.getElementById("tabs-btn").addEventListener("click", function() {
   openTab(event, "Tabs");
@@ -205,31 +209,3 @@ function getImageUrl(searchTerm, callback, errorCallback) {
   x.send();
 }
 
-function renderStatus(statusText) {
-  document.getElementById('status').textContent = statusText;
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  getCurrentTabUrl(function(url) {
-    // Put the image URL in Google search.
-    renderStatus('Performing Google Image search for ' + url);
-
-    getImageUrl(url, function(imageUrl, width, height) {
-
-      renderStatus('Search term: ' + url + '\n' +
-          'Google image search result: ' + imageUrl);
-      var imageResult = document.getElementById('image-result');
-      // Explicitly set the width/height to minimize the number of reflows. For
-      // a single image, this does not matter, but if you're going to embed
-      // multiple external images in your page, then the absence of width/height
-      // attributes causes the popup to resize multiple times.
-      imageResult.width = width;
-      imageResult.height = height;
-      imageResult.src = imageUrl;
-      imageResult.hidden = false;
-
-    }, function(errorMessage) {
-      renderStatus('Cannot display image. ' + errorMessage);
-    });
-  });
-});

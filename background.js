@@ -14,8 +14,6 @@ chrome.tabs.query({}, function(tabList) {
 });
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-	console.log(tab);
-	// text = tab.url;
 	tabs[tabId] = {};
 	tabs[tabId]["Tab"] = tab;
 	if (!("Date" in tabs[tab.id] || "Alarm" in tabs[tab.id] || "Locked" in tabs[tab.id])) {
@@ -23,6 +21,14 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 		tabs[tab.id]["Alarm"] = chrome.alarms.create('', {delayInMinutes: 1});
 		tabs[tab.id]["Locked"] = false;
 	}
+});
+
+// To handle pre-rendering, which alters tab ids
+chrome.tabs.onReplaced.addListener(function(addedTabId, removedTabId) {
+	var tab = tabs[removedTabId];
+	delete tabs[removedTabId];
+	tabs[addedTabId] = tab;
+	tabs[tabId]["Tab"] = tab;
 });
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {

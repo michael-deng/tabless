@@ -11,25 +11,46 @@ chrome.runtime.getBackgroundPage(function(bg) {
     var tab = bg.tabs[key]["Tab"];
     var date = bg.tabs[key]["Date"];
     var alarm = bg.tabs[key]["Alarm"];
+    var locked = bg.tabs[key]["Locked"];
     var row = table.insertRow(-1);
     var cell1 = row.insertCell(0);
     var cell2 = row.insertCell(1);
     var cell3 = row.insertCell(2);
-    var cell4 = row.insertCell(3);
 
     cell1.innerHTML = "<img src=" + tab.favIconUrl + ">";
-    cell2.innerHTML = tab.title;
-    setTimer(date, cell3);
+    cell2.innerHTML = "<div class=\"tab-title\">" + tab.title + "</div><div class=\"tab-time\"></div>";
+    var timeLeft = cell2.getElementsByClassName("tab-time")[0];
+    setTimer(date, timeLeft);
 
-    cell4.innerHTML = "<div class=\"panel\"><div class=\"content\"><i class=\"fa fa-lock\"></i></div></div>";
-    var panel = cell4.getElementsByClassName("panel")[0];
-    panel.addEventListener("click", function() {
-      toggleLock(event);
-    });
+    // cell4.innerHTML = "<div class=\"panel\"><div class=\"content\"><i class=\"fa\"></i></div></div>";
+    cell3.innerHTML = "<div class=\"switch\"><input type=\"checkbox\" checked><label><span class=\"fontawesome-ok\"></span><span class=\"fontawesome-remove\"></span><div></div></label></div>"
+    // var panel = cell4.getElementsByClassName("panel")[0];
+    // panel.id = key;
+    // panel.addEventListener("click", toggleLock);
+
+    // var icon = panel.getElementsByTagName("i")[0];
+    // if (locked) {
+    //   icon.classList.toggle("fa-lock");
+    // } else {
+    //   icon.classList.toggle("fa-unlock");
+    // }
+  }
+
+  function toggleLock() {
+    var panel = this;
+    var tabId = Number(panel.id);
+    var icon = panel.getElementsByTagName("i")[0];
+    if (icon.classList.contains("fa-lock")) {
+      bg.tabs[tabId]["Locked"] = false;
+    } else {
+      bg.tabs[tabId]["Locked"] = true;
+    }
+    icon.classList.toggle("fa-lock");
+    icon.classList.toggle("fa-unlock");
   }
 });
 
-function setTimer(date, cell3) {
+function setTimer(date, element) {
   // Set the date we're counting down to
   var countDownDate = date + 10000;
 
@@ -49,13 +70,13 @@ function setTimer(date, cell3) {
     var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
     // Display the result in the element with id="demo"
-    cell3.innerHTML = days + "d " + hours + "h "
+    element.innerHTML = days + "d " + hours + "h "
     + minutes + "m " + seconds + "s ";
 
     // If the count down is finished, write some text 
     if (distance < 5000) {
       clearInterval(x);
-      cell3.innerHTML = "A few seconds left";
+      element.innerHTML = "A few seconds left";
     }
   }, 1000);
 }
@@ -68,7 +89,7 @@ document.getElementById("settings-btn").addEventListener("click", function() {
   openTab(event, "Settings");
 });
 
-function openTab(evt, tabName) {
+function openTab(event, tabName) {
   // Declare all variables
   var i, tabcontent, tablinks;
 
@@ -86,20 +107,17 @@ function openTab(evt, tabName) {
 
   // Show the current tab, and add an "active" class to the button that opened the tab
   document.getElementById(tabName).className += " active"
-  evt.currentTarget.className += " active";
+  event.currentTarget.className += " active";
 }
 
-function toggleLock(evt) {
-  var panel = evt.currentTarget;
-  var icon = panel.getElementsByTagName("i")[0];
-  if (icon.classList.contains("fa-lock")) {
-    
-  } else {
-    // Lock
-  }
-  icon.classList.toggle("fa-lock");
-  icon.classList.toggle("fa-unlock");
-}
+// document.getElementById("Settings").addEventListener("click", function(event) {
+//   event.preventDefault();
+
+
+
+//   return false;
+// });
+
 
 /**
  * Get the current URL.

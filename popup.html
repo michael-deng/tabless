@@ -18,6 +18,7 @@
     <script src="https://use.fontawesome.com/5ea7d79d6a.js"></script>
   </head>
   <body>
+    
     <div class="tab">
       <button class="tablinks active" id="tabs-btn">Tabs</button>
       <button class="tablinks" id="settings-btn">Settings</button>
@@ -25,15 +26,14 @@
 
     <div id="Tabs" class="tabcontent active">
       <table id="tabs-table"></table>
-      <div id="status"></div>
     </div>
 
     <div id="Settings" class="tabcontent">
       <form>
         How long to retain inactive tabs?<br>
-        <input type="text" name="retain-time"><br>
+        <input type="text" name="retain-time" required><br>
         Allow how many open tabs before starting auto-close?<br>
-        <input type="text" name="allowed-tabs"><br><br>
+        <input type="text" name="allowed-tabs" required><br><br>
         <input type="submit" value="Save">
       </form>
     </div>

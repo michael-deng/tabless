@@ -1,16 +1,8 @@
 body {
   font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
   font-size: 100%;
-  width: 540px;
+  width: 480px;
   height: 600px;
-}
-
-#status {
-  /* avoid an excessively wide status text */
-  white-space: pre;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  max-width: 400px;
 }
 
 #tabs-table {
@@ -18,20 +10,26 @@ body {
   white-space: pre;
   text-overflow: ellipsis;
   overflow: hidden;
-  max-width: 400px;
 }
 
 #tabs-table tr td {
-  white-space: pre;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  max-width: 300px;
+  max-width: 360px;
+  font-size: 0.8em;
+  padding: 5px;
 }
 
 #tabs-table img {
-  height: 14px;
-  width: 14px;
+  height: 16px;
+  width: 16px;
+  border-radius: 2px;
 }
+
+.tab-title {
+  white-space: pre;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
 
 
 /* Tabbed menu in popup */
@@ -107,3 +105,127 @@ div.active {
 .panel:last-child {
   margin-right: 0;
 }*/
+
+
+
+
+/* 
+Design by echojanz: 
+http://dribbble.com/shots/1039179-Slide-Button?list=users
+*/
+
+/*
+Technical inspiration from tutorial by Hugo Giraudel:
+https://tympanus.net/codrops/2012/09/13/button-switches-with-checkboxes-and-css3-fanciness/
+*/
+
+/* Font Awesome */
+
+
+[class*="fontawesome-"]:before {
+  font-family: 'FontAwesome', sans-serif;
+}
+
+/* Global styles */
+*, *:after, *:before {
+  box-sizing: border-box;
+}
+
+/*---Switch styles---*/
+
+/* Checkbox hack */
+.switch input {
+  cursor: pointer;
+  height: 100%;
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  z-index: 100;
+}
+
+/* Container */
+.switch {
+  height: 28px;
+  margin: 20px auto;
+  position: relative;
+  width: 56px;
+}
+
+/* Background unchecked */
+.switch label {
+  background: #e9513a;
+  color: #c72f18;
+  border-radius: 2px;
+  display: block;
+  height: 100%;
+  position: relative;
+  transition: all .15s ease;
+  width: 100%;
+}
+
+/* Slider unchecked */
+.switch label div {
+  background: #fff;
+  border-radius: 2px;
+  display: block;
+  height: 20px;
+  left: 4px;
+  position: absolute;
+  top: 4px;
+  transition: all .15s ease;
+  width: 24px;
+  z-index: 3; 
+}
+
+/* Vertical lines on slider */
+.switch label div:before {
+  background: #d3d3d3;
+  bottom: 0;
+  box-shadow: -6px 0 0 0 #d3d3d3,
+        6px 0 0 0 #d3d3d3; 
+  content: '';
+  display: block;
+  height: 15px;
+  left: 0;
+  margin: auto;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: all .15s ease;
+  width: 3px;
+}
+
+/* Icon styles */
+.switch .fontawesome-ok {
+  font-size: 16px;
+  left: 9px;
+  position: relative;
+  top: 6px;
+  z-index: 2;
+}
+
+.fontawesome-ok:before {
+  content: "\f13e";
+}
+
+.switch .fontawesome-remove {
+  font-size: 16px;
+  left: 27px;
+  position: relative;
+  top: 6px;
+  z-index: 2;
+}
+
+.fontawesome-remove:before {
+  content: "\f023";
+}
+
+/* Checked States */
+.switch input:checked~label {
+  background: #2fca6c;
+  color: #13ad4f;
+}
+
+.switch input:checked~label div {
+  left: 28px;
+}

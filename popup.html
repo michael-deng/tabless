@@ -29,11 +29,21 @@
     </div>
 
     <div id="Settings" class="tabcontent">
-      <form>
-        How long to retain inactive tabs?<br>
-        <input type="text" name="retain-time" required><br>
-        Allow how many open tabs before starting auto-close?<br>
-        <input type="text" name="allowed-tabs" required><br><br>
+      <form id="settings-form">
+        <label>Time limit</label>
+        <div class="tooltip">
+          <i class="fa fa-question-circle" aria-hidden="true"></i>
+          <span class="tooltiptext">How long to keep inactive tabs open?</span>
+        </div>
+        <br>
+        <input type="text" name="time-limit" required> minutes<br>
+        <label>Minimum open tabs</label>
+        <div class="tooltip">
+          <i class="fa fa-question-circle" aria-hidden="true"></i>
+          <span class="tooltiptext" id="tooltiptext2">Stop auto-close when you only have this number of tabs open</span>
+        </div>
+        <br>
+        <input type="text" name="min-open-tabs" required> tabs<br>
         <input type="submit" value="Save">
       </form>
     </div>

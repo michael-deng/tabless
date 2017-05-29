@@ -23,7 +23,7 @@ chrome.runtime.getBackgroundPage(function(bg) {
     countdown(date, tabTimer);
 
     // cell4.innerHTML = "<div class=\"panel\"><div class=\"content\"><i class=\"fa\"></i></div></div>";
-    cell3.innerHTML = "<div class=\"switch\"><input id=" + key + " type=\"checkbox\"><label><span class=\"fontawesome-ok\"></span><span class=\"fontawesome-remove\"></span><div></div></label></div>"
+    cell3.innerHTML = "<div class=\"switch\"><input type=\"checkbox\"><label><span class=\"fontawesome-ok\"></span><span class=\"fontawesome-remove\"></span><div></div></label></div>"
     var checkbox = cell3.getElementsByTagName("input")[0];
 
     if (!locked) {
@@ -114,13 +114,120 @@ function openTab(event, tabName) {
   event.currentTarget.className += " active";
 }
 
-// document.getElementById("Settings").addEventListener("click", function(event) {
-//   event.preventDefault();
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+document.getElementById("settings-form").addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  var timeLimitHours = document.getElementById("time-limit-hours");
+  var timeLimitMinutes = document.getElementById("time-limit-minutes")
+  var timeLimitError = document.getElementById("time-limit-error");
+
+  if (timeLimitHours.value == "") {
+    timeLimitError.innerHTML = "Hours cannot be blank";
+    timeLimitHours.focus();
+    return false;
+  }
+
+  if (!isNumeric(timeLimitHours.value)) {
+    timeLimitError.innerHTML = "Hours has to be a number";
+    timeLimitHours.focus();
+    return false;
+  }
+
+  if (timeLimitHours.value < 0) {
+    timeLimitError.innerHTML = "Hours cannot be less than 0";
+    timeLimitHours.focus();
+    return false;
+  }
+
+  if (timeLimitHours.value > 720) {
+    timeLimitError.innerHTML = "Hours cannot be greater than 720";
+    timeLimitHours.focus();
+    return false;
+  }
+
+  if (timeLimitHours.value % 1 != 0 || timeLimitHours.value == "e") {
+    timeLimitError.innerHTML = "Hours has to be a whole number";
+    timeLimitHours.focus();
+    return false;
+  }
+
+  if (timeLimitMinutes.value == "") {
+    timeLimitError.innerHTML = "Minutes cannot be blank";
+    timeLimitMinutes.focus();
+    return false;
+  }
+
+  if (!isNumeric(timeLimitMinutes.value)) {
+    timeLimitError.innerHTML = "Minutes has to be a number";
+    timeLimitMinutes.focus();
+    return false;
+  }
+
+  if (timeLimitMinutes.value < 0) {
+    timeLimitError.innerHTML = "Minutes cannot be less than 0";
+    timeLimitMinutes.focus();
+    return false;
+  }
+
+  if (timeLimitMinutes.value % 1 != 0) {
+    timeLimitError.innerHTML = "Minutes has to be a whole number";
+    timeLimitMinutes.focus();
+    return false;
+  }
+
+  if (timeLimitMinutes.value > 59) {
+    timeLimitError.innerHTML = "Minutes cannot be greater than 59";
+    timeLimitMinutes.focus();
+    return false;
+  }
+
+  if (timeLimitHours.value == 0 && timeLimitMinutes.value == 0) {
+    timeLimitError.innerHTML = "Time limit has to be at least 1 minute";
+    timeLimitMinutes.focus();
+    return false;
+  }
+
+  var minOpenTabs = document.getElementById("min-open-tabs");
+  var minOpenTabsError = document.getElementById("min-open-tabs-error");
+
+  if (minOpenTabs.value == "") {
+    minOpenTabsError.innerHTML = "Minimum open tabs cannot be blank";
+    minOpenTabs.focus();
+    return false;
+  }
+
+  if (!isNumeric(minOpenTabs.value)) {
+    minOpenTabsError.innerHTML = "Minimum open tabs has to be a number";
+    minOpenTabs.focus();
+    return false;
+  }
+
+  if (minOpenTabs.value < 1) {
+    minOpenTabsError.innerHTML = "Minimum open tabs cannot be less than 1";
+    minOpenTabs.focus();
+    return false;
+  }
+
+  if (minOpenTabs.value > 100) {
+    minOpenTabsError.innerHTML = "Minimum open tabs cannot be greater than 100";
+    minOpenTabs.focus();
+    return false;
+  }
+
+  if (minOpenTabs.value % 1 != 0) {
+    minOpenTabsError.innerHTML = "Minimum open tabs has to be a whole number";
+    minOpenTabs.focus();
+    return false;
+  }
+
+  return false;
+});
 
 
-
-//   return false;
-// });
 
 
 /**

@@ -1,4 +1,4 @@
-// Copyright (c) 2014 The Chromium Authors. All rights reserved.
+ // Copyright (c) 2014 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -43,46 +43,48 @@ chrome.runtime.getBackgroundPage(function(bg) {
     var checkbox = this;
     if (bg.tabs[tabId]["Locked"] == true) {
       bg.tabs[tabId]["Locked"] = false;
+      // Lock the tab
     } else {
       bg.tabs[tabId]["Locked"] = true;
+      // Unlock the tab
     }
   }
-});
 
-function countdown(date, element) {
-  // Set the date we're counting down to
-  var countDownDate = date + 10000;
-
-  setTimer(countDownDate, element);
-
-  // Update the count down every 1 second
-  var x = setInterval(function() {
+  function countdown(date, element) {
+    // Set the date we're counting down to
+    var countDownDate = date + bg.timeLimit * 60000;
 
     setTimer(countDownDate, element);
 
-  }, 1000);
-}
+    // Update the count down every 1 second
+    var x = setInterval(function() {
 
-function setTimer(countDownDate, element) {
-  // Find the distance between now an the count down date
-  var distance = countDownDate - Date.now();
+      setTimer(countDownDate, element);
 
-  // Time calculations for days, hours, minutes and seconds
-  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-  // Display the result in the element with id="demo"
-  element.innerHTML = days + "d " + hours + "h "
-  + minutes + "m " + seconds + "s ";
-  
-  // If the count down is finished, write some text 
-  if (distance < 5000) {
-    clearInterval(this);
-    element.innerHTML = "A few seconds left";
+    }, 1000);
   }
-}
+
+  function setTimer(countDownDate, element) {
+    // Find the distance between now an the count down date
+    var distance = countDownDate - Date.now();
+
+    // Time calculations for days, hours, minutes and seconds
+    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    // Display the result in the element with id="demo"
+    element.innerHTML = days + "d " + hours + "h "
+    + minutes + "m " + seconds + "s ";
+    
+    // If the count down is finished, write some text 
+    if (distance < 5000) {
+      clearInterval(this);
+      element.innerHTML = "A few seconds left";
+    }
+  }
+});
 
 
 document.getElementById("tabs-btn").addEventListener("click", function() {
@@ -113,6 +115,37 @@ function openTab(event, tabName) {
   document.getElementById(tabName).className += " active"
   event.currentTarget.className += " active";
 }
+
+chrome.storage.sync.get(["timeLimit", "minOpenTabs"], function(settings) {
+  // var timeLimitHours;
+  // var timeLimitMinutes;
+  // var minOpenTabs;
+
+  // if (!("timeLimit" in settings && "minOpenTabs" in settings)) {
+  //   chrome.storage.sync.set({
+  //     "timeLimit": 5,
+  //     "minOpenTabs": 5
+  //   });
+  //   timeLimitHours = 0;
+  //   timeLimitMinutes = 5;
+  //   minOpenTabs = 5;
+
+  // } else {
+  //   var timeLimit = settings["timeLimit"];
+  //   timeLimitHours = Math.floor(timeLimit/60);
+  //   timeLimitMinutes = timeLimit % 60;
+  //   minOpenTabs = settings["minOpenTabs"];
+  // }
+
+  var timeLimit = settings["timeLimit"];
+  timeLimitHours = Math.floor(timeLimit/60);
+  timeLimitMinutes = timeLimit % 60;
+  minOpenTabs = settings["minOpenTabs"];
+
+  document.getElementById("time-limit-hours").value = timeLimitHours;
+  document.getElementById("time-limit-minutes").value = timeLimitMinutes;
+  document.getElementById("min-open-tabs").value = minOpenTabs;
+});
 
 function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
@@ -149,7 +182,7 @@ document.getElementById("settings-form").addEventListener("submit", function(eve
     return false;
   }
 
-  if (timeLimitHours.value % 1 != 0 || timeLimitHours.value == "e") {
+  if (timeLimitHours.value % 1 != 0) {
     timeLimitError.innerHTML = "Hours has to be a whole number";
     timeLimitHours.focus();
     return false;
@@ -223,6 +256,17 @@ document.getElementById("settings-form").addEventListener("submit", function(eve
     minOpenTabs.focus();
     return false;
   }
+
+  timeLimitError.innerHTML = "&nbsp";
+  minOpenTabsError.innerHTML = "&nbsp";
+
+  // Time limit will be stored in minutes
+  var timeLimit = 60 * parseInt(timeLimitHours.value) + parseInt(timeLimitMinutes.value);
+
+  chrome.storage.sync.set({
+    "timeLimit": timeLimit,
+    "minOpenTabs": minOpenTabs.value
+  });
 
   return false;
 });

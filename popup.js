@@ -2,57 +2,280 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+/* TODO
+1. Clean up code, use DRY
+2. Consider pulling Timer and TimerId out of bg.tabs since they're specific to popup.js
+3. Think about how Timer and TimerId might break in different use cases
+4. Handle alarm in background.js
+*/
+
+/* FIX BUG
+Facebook bugs out when I open it in a new tab and try to lock it
+*/
+
 chrome.runtime.getBackgroundPage(function(bg) {
   // Do what you want with the page
   var table = document.getElementById('tabs-table');
   // .textContent = bg.text;
   for (key in bg.tabs) {
-    // console.log(bg.tabs[key]);
     var tab = bg.tabs[key]["Tab"];
     var date = bg.tabs[key]["Date"];
-    var alarm = bg.tabs[key]["Alarm"];
     var locked = bg.tabs[key]["Locked"];
     var row = table.insertRow(-1);
+    
     var cell1 = row.insertCell(0);
     var cell2 = row.insertCell(1);
     var cell3 = row.insertCell(2);
 
     cell1.innerHTML = "<img src=" + tab.favIconUrl + ">";
+    
     cell2.innerHTML = "<div class=\"tab-title\">" + tab.title + "</div><div class=\"tab-timer\"></div>";
-    var tabTimer = cell2.getElementsByClassName("tab-timer")[0];
-    countdown(date, tabTimer);
+    var timer = cell2.getElementsByClassName("tab-timer")[0];
+    bg.tabs[key]["Timer"] = timer;
 
-    // cell4.innerHTML = "<div class=\"panel\"><div class=\"content\"><i class=\"fa\"></i></div></div>";
     cell3.innerHTML = "<div class=\"switch\"><input type=\"checkbox\"><label><span class=\"fontawesome-ok\"></span><span class=\"fontawesome-remove\"></span><div></div></label></div>"
     var checkbox = cell3.getElementsByTagName("input")[0];
 
+    // Set lock toggle's initial state
     if (!locked) {
       checkbox.checked = true;
+      bg.tabs[key]["TimerId"] = countdown(date, timer, bg.timeLimit);
+    } else {
+      timer.innerHTML = "Locked";
     }
 
     // Use let to get a block-scoped id that can be passed to event listener
     let tabId = key;
 
-    checkbox.addEventListener("change", function () {
+    checkbox.addEventListener("change", function() {
       toggleLock(tabId);
     });
-
   }
 
+  // Populate "Settings" tab with information from storage
+  chrome.storage.sync.get(["timeLimit", "minOpenTabs"], function(settings) {
+    var timeLimit = settings["timeLimit"];
+    timeLimitHours = Math.floor(timeLimit/60);
+    timeLimitMinutes = timeLimit % 60;
+    minOpenTabs = settings["minOpenTabs"];
+
+    document.getElementById("time-limit-hours").value = timeLimitHours;
+    document.getElementById("time-limit-minutes").value = timeLimitMinutes;
+    document.getElementById("min-open-tabs").value = minOpenTabs;
+  });
+
+  // Handle settings form submission
+  document.getElementById("settings-form").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    var timeLimitHours = document.getElementById("time-limit-hours");
+    var timeLimitMinutes = document.getElementById("time-limit-minutes")
+    var timeLimitError = document.getElementById("time-limit-error");
+
+    if (timeLimitHours.value == "") {
+      timeLimitError.innerHTML = "Hours cannot be blank";
+      timeLimitHours.focus();
+      return false;
+    }
+
+    if (!isNumeric(timeLimitHours.value)) {
+      timeLimitError.innerHTML = "Hours has to be a number";
+      timeLimitHours.focus();
+      return false;
+    }
+
+    if (timeLimitHours.value < 0) {
+      timeLimitError.innerHTML = "Hours cannot be less than 0";
+      timeLimitHours.focus();
+      return false;
+    }
+
+    if (timeLimitHours.value > 720) {
+      timeLimitError.innerHTML = "Hours cannot be greater than 720";
+      timeLimitHours.focus();
+      return false;
+    }
+
+    if (timeLimitHours.value % 1 != 0) {
+      timeLimitError.innerHTML = "Hours has to be a whole number";
+      timeLimitHours.focus();
+      return false;
+    }
+
+    if (timeLimitMinutes.value == "") {
+      timeLimitError.innerHTML = "Minutes cannot be blank";
+      timeLimitMinutes.focus();
+      return false;
+    }
+
+    if (!isNumeric(timeLimitMinutes.value)) {
+      timeLimitError.innerHTML = "Minutes has to be a number";
+      timeLimitMinutes.focus();
+      return false;
+    }
+
+    if (timeLimitMinutes.value < 0) {
+      timeLimitError.innerHTML = "Minutes cannot be less than 0";
+      timeLimitMinutes.focus();
+      return false;
+    }
+
+    if (timeLimitMinutes.value % 1 != 0) {
+      timeLimitError.innerHTML = "Minutes has to be a whole number";
+      timeLimitMinutes.focus();
+      return false;
+    }
+
+    if (timeLimitMinutes.value > 59) {
+      timeLimitError.innerHTML = "Minutes cannot be greater than 59";
+      timeLimitMinutes.focus();
+      return false;
+    }
+
+    if (timeLimitHours.value == 0 && timeLimitMinutes.value == 0) {
+      timeLimitError.innerHTML = "Time limit has to be at least 1 minute";
+      timeLimitMinutes.focus();
+      return false;
+    }
+
+    var minOpenTabs = document.getElementById("min-open-tabs");
+    var minOpenTabsError = document.getElementById("min-open-tabs-error");
+
+    if (minOpenTabs.value == "") {
+      minOpenTabsError.innerHTML = "Minimum open tabs cannot be blank";
+      minOpenTabs.focus();
+      return false;
+    }
+
+    if (!isNumeric(minOpenTabs.value)) {
+      minOpenTabsError.innerHTML = "Minimum open tabs has to be a number";
+      minOpenTabs.focus();
+      return false;
+    }
+
+    if (minOpenTabs.value < 1) {
+      minOpenTabsError.innerHTML = "Minimum open tabs cannot be less than 1";
+      minOpenTabs.focus();
+      return false;
+    }
+
+    if (minOpenTabs.value > 100) {
+      minOpenTabsError.innerHTML = "Minimum open tabs cannot be greater than 100";
+      minOpenTabs.focus();
+      return false;
+    }
+
+    if (minOpenTabs.value % 1 != 0) {
+      minOpenTabsError.innerHTML = "Minimum open tabs has to be a whole number";
+      minOpenTabs.focus();
+      return false;
+    }
+
+    timeLimitError.innerHTML = "&nbsp";
+    minOpenTabsError.innerHTML = "&nbsp";
+
+    // Time limit will be stored in minutes
+    var timeLimit = 60 * parseInt(timeLimitHours.value) + parseInt(timeLimitMinutes.value);
+    bg.timeLimit = timeLimit;
+
+    chrome.storage.sync.set({
+      "timeLimit": timeLimit,
+      "minOpenTabs": minOpenTabs.value
+    });
+
+    /* TODO:
+    1. Update the timers in the "Tabs" tab immediately after submit (remember to clear prev interval)
+    2. Make sure alarms close tabs at the right time
+    3. Make sure tab locking
+    */
+ 
+    // Update the timers of every tab
+    chrome.alarms.clearAll();  // Might have to add callback in parameter
+    var date = Date.now();
+
+    for (key in bg.tabs) {
+      if (!bg.tabs[key]["Locked"]) {
+        bg.tabs[key]["Date"] = date;
+        chrome.alarms.create(key.toString(), {delayInMinutes: timeLimit});
+        clearInterval(bg.tabs[key]["TimerId"]);
+        var timer = bg.tabs[key]["Timer"];
+        bg.tabs[key]["TimerId"] = countdown(date, timer, timeLimit);  // Update the timers UI in the "Tabs" tab
+      }
+    }
+    return false;
+  });
+
+  // Listens for click event that changes view to "Tabs" tab
+  document.getElementById("tabs-btn").addEventListener("click", function() {
+    openTab(event, "Tabs");
+  });
+
+  // Listens for click event that changes view to "Settings" tab
+  document.getElementById("settings-btn").addEventListener("click", function() {
+    openTab(event, "Settings");
+  });
+
+  /**
+   * Changes view to "Tabs" or "Settings" page
+   *
+   * @param {object} event - The button clicked on to change page
+   * @param {string} tabName - "Tabs" or "Settings"
+   */
+  function openTab(event, tabName) {
+    // Declare all variables
+    var i, tabcontent, tablinks;
+
+    // Get all elements with class="tabcontent" and hide them
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+      tabcontent[i].className = tabcontent[i].className.replace(" active", "");
+    }
+
+    // Get all elements with class="tablinks" and remove the class "active"
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+      tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+
+    // Show the current tab, and add an "active" class to the button that opened the tab
+    document.getElementById(tabName).className += " active"
+    event.currentTarget.className += " active";
+  }
+
+  /**
+   * Lock or unlock a tab
+   *
+   * @param {number} tabId - The Id of the tab we're locking/unlocking
+   */
   function toggleLock(tabId) {
-    var checkbox = this;
+    console.log(bg.tabs[tabId]["Locked"]);
+
+    var timer = bg.tabs[tabId]["Timer"];
+
     if (bg.tabs[tabId]["Locked"] == true) {
       bg.tabs[tabId]["Locked"] = false;
-      // Lock the tab
+      chrome.alarms.create(tabId.toString(), {delayInMinutes: bg.timeLimit});
+      bg.tabs[tabId]["TimerId"] = countdown(Date.now(), timer, bg.timeLimit);
     } else {
       bg.tabs[tabId]["Locked"] = true;
-      // Unlock the tab
+      chrome.alarms.clear(tabId.toString());
+      clearInterval(bg.tabs[tabId]["TimerId"]);
+      timer.innerHTML = "Locked";
     }
   }
 
-  function countdown(date, element) {
+  /**
+   * Make element a countdown to date + timeLimit
+   *
+   * @param {number} date - When the tab was created or last opened
+   * @param {object} element - The HTML element that will contain the countdown
+   * @params {number} timeLimit - How long to store tab for
+   * @returns {number} The timer's Id, which can be called on by clearInterval()
+   * to stop the timer
+   */
+  function countdown(date, element, timeLimit) {
     // Set the date we're counting down to
-    var countDownDate = date + bg.timeLimit * 60000;
+    var countDownDate = date + timeLimit * 60000;
 
     setTimer(countDownDate, element);
 
@@ -62,11 +285,20 @@ chrome.runtime.getBackgroundPage(function(bg) {
       setTimer(countDownDate, element);
 
     }, 1000);
+    return x;
   }
 
+  /**
+   * A helper function called every second by countdown() that makes element
+   * a countdown to countDownDate and stops countdown when there's 5s left
+   *
+   * @param {number} countDownDate - When the tab will be closed
+   * @param {object} element - The HTML element that contains the countdown
+   */
   function setTimer(countDownDate, element) {
     // Find the distance between now an the count down date
-    var distance = countDownDate - Date.now();
+    var currentDate = Date.now()
+    var distance = countDownDate - currentDate;
 
     // Time calculations for days, hours, minutes and seconds
     var days = Math.floor(distance / (1000 * 60 * 60 * 24));
@@ -77,6 +309,10 @@ chrome.runtime.getBackgroundPage(function(bg) {
     // Display the result in the element with id="demo"
     element.innerHTML = days + "d " + hours + "h "
     + minutes + "m " + seconds + "s ";
+
+    // if (distance < 60000) {
+    //   element.innerHTML = "Less than a minute left";
+    // } 
     
     // If the count down is finished, write some text 
     if (distance < 5000) {
@@ -84,192 +320,20 @@ chrome.runtime.getBackgroundPage(function(bg) {
       element.innerHTML = "A few seconds left";
     }
   }
+
+  /**
+   * Check if a string is a number
+   *
+   * @param {string} n - A string
+   * @returns {boolean} Whether or not n is a number
+   */
+  function isNumeric(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+  }
 });
 
 
-document.getElementById("tabs-btn").addEventListener("click", function() {
-  openTab(event, "Tabs");
-});
-
-document.getElementById("settings-btn").addEventListener("click", function() {
-  openTab(event, "Settings");
-});
-
-function openTab(event, tabName) {
-  // Declare all variables
-  var i, tabcontent, tablinks;
-
-  // Get all elements with class="tabcontent" and hide them
-  tabcontent = document.getElementsByClassName("tabcontent");
-  for (i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].className = tabcontent[i].className.replace(" active", "");
-  }
-
-  // Get all elements with class="tablinks" and remove the class "active"
-  tablinks = document.getElementsByClassName("tablinks");
-  for (i = 0; i < tablinks.length; i++) {
-    tablinks[i].className = tablinks[i].className.replace(" active", "");
-  }
-
-  // Show the current tab, and add an "active" class to the button that opened the tab
-  document.getElementById(tabName).className += " active"
-  event.currentTarget.className += " active";
-}
-
-chrome.storage.sync.get(["timeLimit", "minOpenTabs"], function(settings) {
-  // var timeLimitHours;
-  // var timeLimitMinutes;
-  // var minOpenTabs;
-
-  // if (!("timeLimit" in settings && "minOpenTabs" in settings)) {
-  //   chrome.storage.sync.set({
-  //     "timeLimit": 5,
-  //     "minOpenTabs": 5
-  //   });
-  //   timeLimitHours = 0;
-  //   timeLimitMinutes = 5;
-  //   minOpenTabs = 5;
-
-  // } else {
-  //   var timeLimit = settings["timeLimit"];
-  //   timeLimitHours = Math.floor(timeLimit/60);
-  //   timeLimitMinutes = timeLimit % 60;
-  //   minOpenTabs = settings["minOpenTabs"];
-  // }
-
-  var timeLimit = settings["timeLimit"];
-  timeLimitHours = Math.floor(timeLimit/60);
-  timeLimitMinutes = timeLimit % 60;
-  minOpenTabs = settings["minOpenTabs"];
-
-  document.getElementById("time-limit-hours").value = timeLimitHours;
-  document.getElementById("time-limit-minutes").value = timeLimitMinutes;
-  document.getElementById("min-open-tabs").value = minOpenTabs;
-});
-
-function isNumeric(n) {
-  return !isNaN(parseFloat(n)) && isFinite(n);
-}
-
-document.getElementById("settings-form").addEventListener("submit", function(event) {
-  event.preventDefault();
-
-  var timeLimitHours = document.getElementById("time-limit-hours");
-  var timeLimitMinutes = document.getElementById("time-limit-minutes")
-  var timeLimitError = document.getElementById("time-limit-error");
-
-  if (timeLimitHours.value == "") {
-    timeLimitError.innerHTML = "Hours cannot be blank";
-    timeLimitHours.focus();
-    return false;
-  }
-
-  if (!isNumeric(timeLimitHours.value)) {
-    timeLimitError.innerHTML = "Hours has to be a number";
-    timeLimitHours.focus();
-    return false;
-  }
-
-  if (timeLimitHours.value < 0) {
-    timeLimitError.innerHTML = "Hours cannot be less than 0";
-    timeLimitHours.focus();
-    return false;
-  }
-
-  if (timeLimitHours.value > 720) {
-    timeLimitError.innerHTML = "Hours cannot be greater than 720";
-    timeLimitHours.focus();
-    return false;
-  }
-
-  if (timeLimitHours.value % 1 != 0) {
-    timeLimitError.innerHTML = "Hours has to be a whole number";
-    timeLimitHours.focus();
-    return false;
-  }
-
-  if (timeLimitMinutes.value == "") {
-    timeLimitError.innerHTML = "Minutes cannot be blank";
-    timeLimitMinutes.focus();
-    return false;
-  }
-
-  if (!isNumeric(timeLimitMinutes.value)) {
-    timeLimitError.innerHTML = "Minutes has to be a number";
-    timeLimitMinutes.focus();
-    return false;
-  }
-
-  if (timeLimitMinutes.value < 0) {
-    timeLimitError.innerHTML = "Minutes cannot be less than 0";
-    timeLimitMinutes.focus();
-    return false;
-  }
-
-  if (timeLimitMinutes.value % 1 != 0) {
-    timeLimitError.innerHTML = "Minutes has to be a whole number";
-    timeLimitMinutes.focus();
-    return false;
-  }
-
-  if (timeLimitMinutes.value > 59) {
-    timeLimitError.innerHTML = "Minutes cannot be greater than 59";
-    timeLimitMinutes.focus();
-    return false;
-  }
-
-  if (timeLimitHours.value == 0 && timeLimitMinutes.value == 0) {
-    timeLimitError.innerHTML = "Time limit has to be at least 1 minute";
-    timeLimitMinutes.focus();
-    return false;
-  }
-
-  var minOpenTabs = document.getElementById("min-open-tabs");
-  var minOpenTabsError = document.getElementById("min-open-tabs-error");
-
-  if (minOpenTabs.value == "") {
-    minOpenTabsError.innerHTML = "Minimum open tabs cannot be blank";
-    minOpenTabs.focus();
-    return false;
-  }
-
-  if (!isNumeric(minOpenTabs.value)) {
-    minOpenTabsError.innerHTML = "Minimum open tabs has to be a number";
-    minOpenTabs.focus();
-    return false;
-  }
-
-  if (minOpenTabs.value < 1) {
-    minOpenTabsError.innerHTML = "Minimum open tabs cannot be less than 1";
-    minOpenTabs.focus();
-    return false;
-  }
-
-  if (minOpenTabs.value > 100) {
-    minOpenTabsError.innerHTML = "Minimum open tabs cannot be greater than 100";
-    minOpenTabs.focus();
-    return false;
-  }
-
-  if (minOpenTabs.value % 1 != 0) {
-    minOpenTabsError.innerHTML = "Minimum open tabs has to be a whole number";
-    minOpenTabs.focus();
-    return false;
-  }
-
-  timeLimitError.innerHTML = "&nbsp";
-  minOpenTabsError.innerHTML = "&nbsp";
-
-  // Time limit will be stored in minutes
-  var timeLimit = 60 * parseInt(timeLimitHours.value) + parseInt(timeLimitMinutes.value);
-
-  chrome.storage.sync.set({
-    "timeLimit": timeLimit,
-    "minOpenTabs": minOpenTabs.value
-  });
-
-  return false;
-});
+  
 
 
 

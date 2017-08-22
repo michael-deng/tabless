@@ -60,18 +60,22 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 });
 
 chrome.tabs.onRemoved.addListener(function(tabId, tab) {
+	// Remove row from modal
+	if (tabs[tabId]["Timer"]) {
+		var row = tabs[tabId]["Timer"].parentNode.parentNode;
+		row.parentNode.removeChild(row);
+	}
+	// Clear UI timer
+	if (tabs[tabId]["TimerId"]) {
+		clearInterval(tabs[tabId]["TimerId"]);
+	}
+	chrome.alarms.clear(tabId.toString());
 	delete tabs[tabId];
-
-	// TODO: if popup is open, delete row
 });
 
 chrome.alarms.onAlarm.addListener(function(alarm) {
 	var tabId = parseInt(alarm["name"]);
 	chrome.tabs.remove(tabId);
-	var row = tabs[tabId]["Timer"].parentNode.parentNode;
-	row.parentNode.removeChild(row);
-	clearInterval(tabs[tabId]["TimerId"]);
-	delete tabs[tabId];
 });
 
 /**
@@ -102,3 +106,34 @@ function changeFavicon() {
 	  document.head.appendChild(link);
 	}
 }
+
+// Toggle modal
+chrome.browserAction.onClicked.addListener(function(tab) {
+	chrome.tabs.sendMessage(tab.id, {text: "toggle"}, function(response) {
+
+		// If we get a response, it means the content script is running and received our message
+		if (response) {
+      console.log("Already there");
+    }
+
+    // No response, inject jquery and content script, then resend message and insert css
+    else {
+      console.log("Not there, inject content script");
+      chrome.tabs.executeScript(tab.id, {file: "jquery.min.js"}, function() {
+	      chrome.tabs.executeScript(tab.id, {file: "tabless-extension-content-script.js"}, function() {
+	      	chrome.tabs.sendMessage(tab.id, {text: "toggle"});
+	      	chrome.tabs.insertCSS(tab.id, {file: "tabless-extension-iframe-styles.css"}, function() {
+	      		console.log('CSS inserted');
+	      	});
+	      });
+	    });
+    }
+	});
+	// var iframe = document.createElement('iframe');
+	// iframe.src = chrome.runtime.getURL("modal.html");
+	// iframe.frameBorder = 0;
+	// iframe.id = "myFrame";
+	// document.body.appendChild(iframe);
+	// var path = chrome.runtime.getURL("modal.html");
+	// modal.style.display = "block";
+});

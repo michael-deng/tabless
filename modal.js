@@ -7,6 +7,7 @@
 2. Consider pulling Timer and TimerId out of bg.tabs since they're specific to popup.js
 3. Think about how Timer and TimerId might break in different use cases
 4. Handle alarm in background.js
+5. Create timer
 */
 
 /* FIX BUG
@@ -27,7 +28,13 @@ chrome.runtime.getBackgroundPage(function(bg) {
     var cell2 = row.insertCell(1);
     var cell3 = row.insertCell(2);
 
-    cell1.innerHTML = "<img src=" + tab.favIconUrl + ">";
+    var favIconUrl = tab.favIconUrl;
+    if (favIconUrl.startsWith('chrome://') || favIconUrl.startsWith('chrome-extension://')) {
+      // Load default image
+    } else {
+      secureFavIconUrl = favIconUrl.replace(/^http:/, 'https:');
+      cell1.innerHTML = "<img src=" + secureFavIconUrl + ">";
+    }
     
     cell2.innerHTML = "<div class=\"tab-title\">" + tab.title + "</div><div class=\"tab-timer\"></div>";
     var timer = cell2.getElementsByClassName("tab-timer")[0];
@@ -73,9 +80,7 @@ chrome.runtime.getBackgroundPage(function(bg) {
     var timeLimitError = document.getElementById("time-limit-error");
 
     if (timeLimitHours.value == "") {
-      timeLimitError.innerHTML = "Hours cannot be blank";
-      timeLimitHours.focus();
-      return false;
+      timeLimitHours.value = 0;
     }
 
     if (!isNumeric(timeLimitHours.value)) {
@@ -103,9 +108,7 @@ chrome.runtime.getBackgroundPage(function(bg) {
     }
 
     if (timeLimitMinutes.value == "") {
-      timeLimitError.innerHTML = "Minutes cannot be blank";
-      timeLimitMinutes.focus();
-      return false;
+      timeLimitMinutes.value = 0;
     }
 
     if (!isNumeric(timeLimitMinutes.value)) {
@@ -182,12 +185,6 @@ chrome.runtime.getBackgroundPage(function(bg) {
       "timeLimit": timeLimit,
       "minOpenTabs": minOpenTabs.value
     });
-
-    /* TODO:
-    1. Update the timers in the "Tabs" tab immediately after submit (remember to clear prev interval)
-    2. Make sure alarms close tabs at the right time
-    3. Make sure tab locking
-    */
  
     // Update the timers of every tab
     chrome.alarms.clearAll();  // Might have to add callback in parameter
@@ -248,13 +245,12 @@ chrome.runtime.getBackgroundPage(function(bg) {
    * @param {number} tabId - The Id of the tab we're locking/unlocking
    */
   function toggleLock(tabId) {
-    console.log(bg.tabs[tabId]["Locked"]);
-
     var timer = bg.tabs[tabId]["Timer"];
 
     if (bg.tabs[tabId]["Locked"] == true) {
       bg.tabs[tabId]["Locked"] = false;
       chrome.alarms.create(tabId.toString(), {delayInMinutes: bg.timeLimit});
+      bg.tabs[tabId]["Date"] = Date.now();
       bg.tabs[tabId]["TimerId"] = countdown(Date.now(), timer, bg.timeLimit);
     } else {
       bg.tabs[tabId]["Locked"] = true;

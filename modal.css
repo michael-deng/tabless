@@ -3,9 +3,8 @@ body {
   font-size: 100%;
   width: 480px;
   height: 600px;
+  background: white;
 }
-
-
 
 /* Tabbed menu in popup */
 
@@ -62,8 +61,8 @@ div.active {
 }
 
 #tabs-table img {
-  height: 16px;
-  width: 16px;
+  height: 18px;
+  width: 18px;
   border-radius: 2px;
 }
 

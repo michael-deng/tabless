@@ -33,7 +33,7 @@ chrome.storage.sync.get(["timeLimit", "minOpenTabs"], function(settings) {
     minOpenTabs = settings["minOpenTabs"];
   }
 
-  /* Make sure we get all current tabs after getting current settings first */
+  // Make sure we get all current tabs after getting current settings first
   chrome.tabs.query({}, function(tabList) {
 		for (var i = 0; i < tabList.length; i++) {
 			var tab = tabList[i];
@@ -42,11 +42,12 @@ chrome.storage.sync.get(["timeLimit", "minOpenTabs"], function(settings) {
 	});
 });
 
+// Called whenever a tab is created or updated
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	addTabToDictionary(tabId, tab, timeLimit);
 });
 
-/* To handle pre-rendering, which alters tab ids */
+// To handle pre-rendering, which alters tab ids
 chrome.tabs.onReplaced.addListener(function(addedTabId, removedTabId) {
 	var tab = tabs[removedTabId];
 	delete tabs[removedTabId];
@@ -56,7 +57,21 @@ chrome.tabs.onReplaced.addListener(function(addedTabId, removedTabId) {
 chrome.tabs.onActivated.addListener(function(activeInfo) {
 	var tabId = activeInfo["tabId"];
 
-	// TODO: reset timer
+	// onActivated might be called before onUpdated, so if the tab doesn't exist
+	// in the tabs dictionary yet, we don't need to do anything here
+	if (tabs[tabId] && !tabs[tabId]["Locked"]) {
+		// Clear UI timer
+		if (tabs[tabId]["TimerId"]) {
+			clearInterval(tabs[tabId]["TimerId"]);
+		}
+		// Clear alarm
+		chrome.alarms.clear(tabId.toString());
+
+		// Update everything
+		tabs[tabId]["Date"] = Date.now();
+		chrome.alarms.create(tabId.toString(), {delayInMinutes: timeLimit});
+		// tabs[tabId]["TimerId"] = countdown(date, timer, bg.timeLimit);
+	}
 });
 
 chrome.tabs.onRemoved.addListener(function(tabId, tab) {
@@ -69,6 +84,7 @@ chrome.tabs.onRemoved.addListener(function(tabId, tab) {
 	if (tabs[tabId]["TimerId"]) {
 		clearInterval(tabs[tabId]["TimerId"]);
 	}
+	// Clear alarm
 	chrome.alarms.clear(tabId.toString());
 	delete tabs[tabId];
 });
@@ -109,26 +125,33 @@ function changeFavicon() {
 
 // Toggle modal
 chrome.browserAction.onClicked.addListener(function(tab) {
-	chrome.tabs.sendMessage(tab.id, {text: "toggle"}, function(response) {
 
-		// If we get a response, it means the content script is running and received our message
-		if (response) {
-      console.log("Already there");
-    }
+	// Chrome doesn't let us to inject scripts into chrome:// or chrome-extension:// urls
+	if (tab.url.startsWith("chrome://") || tab.url.startsWith("chrome-extension://")) {
+		alert("Uh oh, Tabless couldn't start on this page. If you're on a \"chrome://\" or \"chrome-extension://\" page, " + 
+					"you aren't allowed to open Tabless. If not, let us know what's happening and we'll get to the bottom of this!");
+	} else {
+		chrome.tabs.sendMessage(tab.id, {text: "toggle"}, function(response) {
 
-    // No response, inject jquery and content script, then resend message and insert css
-    else {
-      console.log("Not there, inject content script");
-      chrome.tabs.executeScript(tab.id, {file: "jquery.min.js"}, function() {
-	      chrome.tabs.executeScript(tab.id, {file: "tabless-extension-content-script.js"}, function() {
-	      	chrome.tabs.sendMessage(tab.id, {text: "toggle"});
-	      	chrome.tabs.insertCSS(tab.id, {file: "tabless-extension-iframe-styles.css"}, function() {
-	      		console.log('CSS inserted');
-	      	});
-	      });
-	    });
-    }
-	});
+			// If we get a response, it means the content script is running and received our message
+			if (response) {
+	      console.log("Already there");
+	    }
+
+	    // No response, inject jquery and content script, then resend message and insert css
+	    else {
+	      console.log("Not there, inject content script");
+	      chrome.tabs.executeScript(tab.id, {file: "jquery.min.js"}, function() {
+		      chrome.tabs.executeScript(tab.id, {file: "tabless-extension-content-script.js"}, function() {
+		      	chrome.tabs.sendMessage(tab.id, {text: "toggle"});
+		      	chrome.tabs.insertCSS(tab.id, {file: "tabless-extension-iframe-styles.css"}, function() {
+		      		console.log('CSS inserted');
+		      	});
+		      });
+		    });
+	    }
+		});
+	}
 	// var iframe = document.createElement('iframe');
 	// iframe.src = chrome.runtime.getURL("modal.html");
 	// iframe.frameBorder = 0;

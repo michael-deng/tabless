@@ -29,11 +29,13 @@ chrome.runtime.getBackgroundPage(function(bg) {
     var cell3 = row.insertCell(2);
 
     var favIconUrl = tab.favIconUrl;
-    if (favIconUrl.startsWith('chrome://') || favIconUrl.startsWith('chrome-extension://')) {
-      // Load default image
-    } else {
-      secureFavIconUrl = favIconUrl.replace(/^http:/, 'https:');
-      cell1.innerHTML = "<img src=" + secureFavIconUrl + ">";
+    if (favIconUrl) {
+      if (favIconUrl.startsWith('chrome://') || favIconUrl.startsWith('chrome-extension://')) {
+        // Load default image
+      } else {
+        secureFavIconUrl = favIconUrl.replace(/^http:/, 'https:');
+        cell1.innerHTML = "<img src=" + secureFavIconUrl + ">";
+      }
     }
     
     cell2.innerHTML = "<div class=\"tab-title\">" + tab.title + "</div><div class=\"tab-timer\"></div>";

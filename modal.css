@@ -1,9 +1,19 @@
 body {
   font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
   font-size: 100%;
-  width: 480px;
-  height: 600px;
+  margin: 0;
   background: white;
+}
+
+.header {
+  height: 60px;
+  width: 480px;
+  border-bottom: 1px solid black;
+}
+
+.header .title {
+  line-height: 60px;
+  text-align: center;
 }
 
 /* Tabbed menu in popup */

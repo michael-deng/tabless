@@ -204,15 +204,31 @@ chrome.runtime.getBackgroundPage(function(bg) {
     return false;
   });
 
-  // Listens for click event that changes view to "Tabs" tab
-  document.getElementById("tabs-btn").addEventListener("click", function() {
-    openTab(event, "Tabs");
-  });
+  // Listens for click event that toggles the "Settings" page
+  document.getElementById("settings-open-btn").addEventListener("click", openSettings);
 
-  // Listens for click event that changes view to "Settings" tab
-  document.getElementById("settings-btn").addEventListener("click", function() {
-    openTab(event, "Settings");
-  });
+  function openSettings() {
+    settings = document.getElementById("settings");
+    settings.style.left = "0px";
+    settings.style.boxShadow = "0 0 50px rgba(0,0,0,0.3)";
+    // tabs = document.getElementById("Tabs");
+
+    // if (settings.classList.contains("active")) {
+    //   settings.classList.remove("active");
+    //   tabs.classList.add("active");
+    // } else {
+    //   tabs.classList.remove("active");
+    //   settings.classList.add("active");
+    // }
+  }
+
+  document.getElementById("settings-close-btn").addEventListener("click", closeSettings);
+
+  function closeSettings() {
+    settings = document.getElementById("settings");
+    settings.style.left = "-300px";
+    settings.style.boxShadow = "none";
+  }
 
   /**
    * Changes view to "Tabs" or "Settings" page

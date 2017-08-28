@@ -22,19 +22,23 @@
   </head>
   <body>
     <div class="header">
-      <div class="title">Tabless</div>
+        <div id="settings-open-btn"><i class="fa fa-cog" aria-hidden="true"></i></div>
+        <div id="title">Tabless</div>
+        <div id="modal-close-btn"><i class="fa fa-times" aria-hidden="true"></i></div>
+      </div>
     </div>
 
-    <div class="tab">
-      <button class="tablinks active" id="tabs-btn">Tabs</button>
-      <button class="tablinks" id="settings-btn">Settings</button>
-    </div>
-
-    <div id="Tabs" class="tabcontent active">
+    <div id="Tabs">
       <table id="tabs-table"></table>
     </div>
 
-    <div id="Settings" class="tabcontent">
+    <div id="settings">
+
+      <div class="header">
+        <div id="settings-close-btn"><i class="fa fa-arrow-left" aria-hidden="true"></i></div>
+        <div id="settings-title">Settings</div>
+      </div>
+
       <form id="settings-form">
 
         <label>Time limit</label>

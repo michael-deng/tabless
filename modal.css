@@ -120,7 +120,6 @@ div.active {
 /* Form */
 
 #settings {
-  font-size: 1.2em;
   height: 100%;
   width: 300px;
   position: fixed;
@@ -136,6 +135,7 @@ div.active {
   width: 100px;
   line-height: 60px;
   text-align: center;
+  font-size: 1.2em;
 }
 
 #settings #settings-close-btn {
@@ -145,6 +145,7 @@ div.active {
   line-height: 60px;
   color: #777777;
   padding-left: 20px;
+  font-size: 1.2em;
 }
 
 #settings #settings-close-btn i {
@@ -155,14 +156,28 @@ div.active {
   color: #333333;
 }
 
-form input {
+#settings-form {
+  padding: 20px;
+}
+
+#settings-form input {
   margin: 5px 0 3px 0;
+  border: 1px solid #888888;
   border-radius: 2px;
+  background: none;
   height: 30px;
-  width: 60px;
-  border-style: solid;
+  width: 50px;
   font-size: 1em;
   font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
+}
+
+#settings-form input:focus {
+  outline-width: 0;
+  border-color: #333333;
+}
+
+#settings-form input.submit:hover {
+  border-color: #333333;
 }
 
 #time-limit-error, #min-open-tabs-error {

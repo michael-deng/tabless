@@ -31,11 +31,13 @@ chrome.runtime.getBackgroundPage(function(bg) {
     var favIconUrl = tab.favIconUrl;
     if (favIconUrl) {
       if (favIconUrl.startsWith('chrome://') || favIconUrl.startsWith('chrome-extension://')) {
-        // Load default image
+        cell1.innerHTML = "<img src=\"google.png\">";
       } else {
-        secureFavIconUrl = favIconUrl.replace(/^http:/, 'https:');
-        cell1.innerHTML = "<img src=" + secureFavIconUrl + ">";
+        // secureFavIconUrl = favIconUrl.replace(/^http:/, 'https:');
+        cell1.innerHTML = "<img src=" + favIconUrl + ">";
       }
+    } else {
+      cell1.innerHTML = "<img src=\"default_favicon.png\">";
     }
     
     cell2.innerHTML = "<div class=\"tab-title\">" + tab.title + "</div><div class=\"tab-timer\"></div>";

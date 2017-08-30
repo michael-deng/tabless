@@ -82,7 +82,11 @@ div.active {
 
 
 
-/* Tab list */
+/* Tabs list */
+
+#tabs {
+  padding: 20px;
+}
 
 #tabs-table {
   /* avoid an excessively wide status text */
@@ -92,13 +96,13 @@ div.active {
 }
 
 #tabs-table tr td {
-  max-width: 360px;
+  max-width: 320px;
   padding: 5px;
 }
 
 #tabs-table img {
-  height: 18px;
-  width: 18px;
+  height: 20px;
+  width: 20px;
   border-radius: 2px;
 }
 

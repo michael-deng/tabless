@@ -39,7 +39,7 @@ chrome.runtime.getBackgroundPage(function(bg) {
     } else {
       cell1.innerHTML = "<img class=\"favicon\" src=\"default_favicon.png\">";
     }
-    
+
     cell2.innerHTML = "<div class=\"tab-title\">" + tab.title + "</div><div class=\"tab-timer\"></div>";
     var timer = cell2.getElementsByClassName("tab-timer")[0];
     bg.tabs[key]["Timer"] = timer;

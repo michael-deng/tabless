@@ -100,8 +100,8 @@ div.active {
 
 #tabs-table tr td {
   min-width: 24px;  /* Prevent tabs table columns from changing slightly when materializing initial images */
-  max-width: 320px;
   padding: 5px;
+  overflow: auto;
 }
 
 #tabs-table .favicon {
@@ -115,12 +115,13 @@ div.active {
   text-overflow: ellipsis;
   overflow: hidden;
   font-size: 0.9em;
+  width: 360px;
 }
 
 .tab-timer {
   margin-top: 3px;
-  font-size: 0.8em;
-  color: #808080;
+  font-size: 0.75em;
+  color: #888888;
 }
 
 .tab-pin {
@@ -208,13 +209,13 @@ div.active {
 
 #time-limit-error, #min-open-tabs-error {
   color: red;
-  font-size: 0.7em;
+  font-size: 0.75em;
   margin: 2px 0 2px 0;
 }
 
 .tip {
   color: #888888;
-  font-size: 0.7em;
+  font-size: 0.75em;
   line-height: 1.2em;
 }
 

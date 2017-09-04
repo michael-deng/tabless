@@ -62,7 +62,7 @@ chrome.runtime.getBackgroundPage(function(bg) {
     //   toggleLock(tabId);
     // });
 
-    cell3.innerHTML = "<img class=\"pin\" title=\"Pin a tab\" src=\"tabless_pin_red.png\"><img class=\"pin\" title=\"Pin a tab\" src=\"tabless_pin_grey.png\">";
+    cell3.innerHTML = "<div class=\"tab-pin\"><img title=\"Pin a tab\" src=\"tabless_pin_red.png\"><img title=\"Pin a tab\" src=\"tabless_pin_grey.png\"></div>";
     if (!locked) {
       cell3.getElementsByTagName("img")[0].style.display = "none";
       // cell3.innerHTML = "<img src=\"tabless_pin_red.png\">";
@@ -73,29 +73,31 @@ chrome.runtime.getBackgroundPage(function(bg) {
       timer.innerHTML = "Pinned";
     }
 
+    var pinContainer = cell3.getElementsByTagName("div")[0];
+
     // Use let to get a block-scoped id that can be passed to event listener
     let tabId = key;
 
-    cell3.addEventListener("click", function() {
+    pinContainer.addEventListener("click", function() {
       togglePin(this, tabId);
     });
   }
 
-  function togglePin(parent, tabId) {
+  function togglePin(pinContainer, tabId) {
     var timer = bg.tabs[tabId]["Timer"];
 
     if (bg.tabs[tabId]["Locked"] == true) {
       // this.src = "tabless_pin_red.png"
-      parent.getElementsByTagName("img")[0].style.display = "none";
-      parent.getElementsByTagName("img")[1].style.display = "initial";
+      pinContainer.children[0].style.display = "none";
+      pinContainer.children[1].style.display = "initial";
       bg.tabs[tabId]["Locked"] = false;
       chrome.alarms.create(tabId.toString(), {delayInMinutes: bg.timeLimit});
       bg.tabs[tabId]["Date"] = Date.now();
       bg.tabs[tabId]["TimerId"] = countdown(Date.now(), timer, bg.timeLimit);
     } else {
       // this.src = "tabless_pin_grey.png"
-      parent.getElementsByTagName("img")[0].style.display = "initial";
-      parent.getElementsByTagName("img")[1].style.display = "none";
+      pinContainer.children[0].style.display = "initial";
+      pinContainer.children[1].style.display = "none";
       bg.tabs[tabId]["Locked"] = true;
       chrome.alarms.clear(tabId.toString());
       clearInterval(bg.tabs[tabId]["TimerId"]);
@@ -185,6 +187,8 @@ chrome.runtime.getBackgroundPage(function(bg) {
       return false;
     }
 
+    timeLimitError.innerHTML = "";
+
     var minOpenTabs = document.getElementById("min-open-tabs");
     var minOpenTabsError = document.getElementById("min-open-tabs-error");
 
@@ -218,8 +222,7 @@ chrome.runtime.getBackgroundPage(function(bg) {
       return false;
     }
 
-    timeLimitError.innerHTML = "&nbsp";
-    minOpenTabsError.innerHTML = "&nbsp";
+    minOpenTabsError.innerHTML = "";
 
     // Time limit will be stored in minutes
     var timeLimit = 60 * parseInt(timeLimitHours.value) + parseInt(timeLimitMinutes.value);

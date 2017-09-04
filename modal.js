@@ -31,36 +31,76 @@ chrome.runtime.getBackgroundPage(function(bg) {
     var favIconUrl = tab.favIconUrl;
     if (favIconUrl) {
       if (favIconUrl.startsWith('chrome://') || favIconUrl.startsWith('chrome-extension://')) {
-        cell1.innerHTML = "<img src=\"google.png\">";
+        cell1.innerHTML = "<img class=\"favicon\" src=\"google.png\">";
       } else {
         // secureFavIconUrl = favIconUrl.replace(/^http:/, 'https:');
-        cell1.innerHTML = "<img src=" + favIconUrl + ">";
+        cell1.innerHTML = "<img class=\"favicon\" src=" + favIconUrl + ">";
       }
     } else {
-      cell1.innerHTML = "<img src=\"default_favicon.png\">";
+      cell1.innerHTML = "<img class=\"favicon\" src=\"default_favicon.png\">";
     }
     
     cell2.innerHTML = "<div class=\"tab-title\">" + tab.title + "</div><div class=\"tab-timer\"></div>";
     var timer = cell2.getElementsByClassName("tab-timer")[0];
     bg.tabs[key]["Timer"] = timer;
 
-    cell3.innerHTML = "<div class=\"switch\"><input type=\"checkbox\"><label><span class=\"fontawesome-ok\"></span><span class=\"fontawesome-remove\"></span><div></div></label></div>"
-    var checkbox = cell3.getElementsByTagName("input")[0];
+    // cell3.innerHTML = "<div class=\"switch\"><input type=\"checkbox\"><label><span class=\"fontawesome-ok\"></span><span class=\"fontawesome-remove\"></span><div></div></label></div>"
+    // var checkbox = cell3.getElementsByTagName("input")[0];
 
-    // Set lock toggle's initial state
+    // // Set lock toggle's initial state
+    // if (!locked) {
+    //   checkbox.checked = true;
+    //   bg.tabs[key]["TimerId"] = countdown(date, timer, bg.timeLimit);
+    // } else {
+    //   timer.innerHTML = "Locked";
+    // }
+
+    // // Use let to get a block-scoped id that can be passed to event listener
+    // let tabId = key;
+
+    // checkbox.addEventListener("change", function() {
+    //   toggleLock(tabId);
+    // });
+
+    cell3.innerHTML = "<img class=\"pin\" title=\"Pin a tab\" src=\"tabless_pin_red.png\"><img class=\"pin\" title=\"Pin a tab\" src=\"tabless_pin_grey.png\">";
     if (!locked) {
-      checkbox.checked = true;
+      cell3.getElementsByTagName("img")[0].style.display = "none";
+      // cell3.innerHTML = "<img src=\"tabless_pin_red.png\">";
       bg.tabs[key]["TimerId"] = countdown(date, timer, bg.timeLimit);
     } else {
-      timer.innerHTML = "Locked";
+      cell3.getElementsByTagName("img")[1].style.display = "none";
+      // cell3.innerHTML = "<img src=\"tabless_pin_grey.png\">";
+      timer.innerHTML = "Pinned";
     }
 
     // Use let to get a block-scoped id that can be passed to event listener
     let tabId = key;
 
-    checkbox.addEventListener("change", function() {
-      toggleLock(tabId);
+    cell3.addEventListener("click", function() {
+      togglePin(this, tabId);
     });
+  }
+
+  function togglePin(parent, tabId) {
+    var timer = bg.tabs[tabId]["Timer"];
+
+    if (bg.tabs[tabId]["Locked"] == true) {
+      // this.src = "tabless_pin_red.png"
+      parent.getElementsByTagName("img")[0].style.display = "none";
+      parent.getElementsByTagName("img")[1].style.display = "initial";
+      bg.tabs[tabId]["Locked"] = false;
+      chrome.alarms.create(tabId.toString(), {delayInMinutes: bg.timeLimit});
+      bg.tabs[tabId]["Date"] = Date.now();
+      bg.tabs[tabId]["TimerId"] = countdown(Date.now(), timer, bg.timeLimit);
+    } else {
+      // this.src = "tabless_pin_grey.png"
+      parent.getElementsByTagName("img")[0].style.display = "initial";
+      parent.getElementsByTagName("img")[1].style.display = "none";
+      bg.tabs[tabId]["Locked"] = true;
+      chrome.alarms.clear(tabId.toString());
+      clearInterval(bg.tabs[tabId]["TimerId"]);
+      timer.innerHTML = "Pinned";
+    }
   }
 
   // Populate "Settings" tab with information from storage
@@ -207,21 +247,21 @@ chrome.runtime.getBackgroundPage(function(bg) {
   });
 
   // Listens for click event that opens the "Settings" page
-  document.getElementById("settings-open-btn").addEventListener("click", function() {
+  document.getElementById("settings-open-btn").firstChild.addEventListener("click", function() {
     settings = document.getElementById("settings");
     settings.style.left = "0px";
     settings.style.boxShadow = "0 0 50px rgba(0,0,0,0.3)";
   });
 
   // Listens for click event that closes the "Settings" page
-  document.getElementById("settings-close-btn").addEventListener("click", function() {
+  document.getElementById("settings-close-btn").firstChild.addEventListener("click", function() {
     settings = document.getElementById("settings");
     settings.style.left = "-300px";
     settings.style.boxShadow = "none";
   });
 
   // Listens for click event that closes the modal
-  document.getElementById("modal-close-btn").addEventListener("click", function() {
+  document.getElementById("modal-close-btn").firstChild.addEventListener("click", function() {
     chrome.tabs.getCurrent(function(tab) {
       chrome.tabs.sendMessage(tab.id, {text: "toggle"});
     });

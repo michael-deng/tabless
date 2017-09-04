@@ -7,8 +7,8 @@ tabs = {
 		"Date": object,
 		"Locked": boolean,
 		"Alarm": boolean,
-		"Timer": HTML element (inserted in popup.js),
-		"TimerId": integer (inserted in popup.js)
+		"Timer": HTML element (inserted in modal.js),
+		"TimerId": integer (inserted in modal.js)
 	}
 }
 

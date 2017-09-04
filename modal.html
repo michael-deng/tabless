@@ -42,23 +42,28 @@
       <form id="settings-form">
 
         <label>Time limit</label>
-        <div class="tooltip">
+        <!-- <div class="tooltip">
           <i class="fa fa-question-circle" aria-hidden="true"></i>
           <span class="tooltiptext">How long to keep inactive tabs open?</span>
-        </div>
+        </div> -->
         <br>
         <input id="time-limit-hours"> hours
         <input id="time-limit-minutes"> minutes
-        <div id="time-limit-error">&nbsp</div>
+        <div id="time-limit-error"></div>
 
-        <label>Minimum open tabs</label>
-        <div class="tooltip">
+        <br>
+
+        <label>Starting threshold</label>
+        <!-- <div class="tooltip">
           <i class="fa fa-question-circle" aria-hidden="true"></i>
-          <span class="tooltiptext" id="tooltiptext2">Stop auto-close when you only have this number of tabs open</span>
-        </div>
+          <span class="tooltiptext" id="tooltiptext2">Stop auto-close when there are only a few tabs open</span>
+        </div> -->
         <br>
         <input id="min-open-tabs"> tabs
-        <div id="min-open-tabs-error">&nbsp</div>
+        <div id="min-open-tabs-error"></div>
+        <div class="tip">Start auto-close when you have at least this number of tabs open</div>
+
+        <br>
 
         <input type="submit" class="submit" value="Save">
       </form>

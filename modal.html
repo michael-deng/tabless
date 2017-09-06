@@ -53,7 +53,7 @@
 
         <br>
 
-        <label>Starting threshold</label>
+        <label>Auto-close threshold</label>
         <!-- <div class="tooltip">
           <i class="fa fa-question-circle" aria-hidden="true"></i>
           <span class="tooltiptext" id="tooltiptext2">Stop auto-close when there are only a few tabs open</span>
@@ -61,11 +61,13 @@
         <br>
         <input id="min-open-tabs"> tabs
         <div id="min-open-tabs-error"></div>
-        <div class="tip">Start auto-close when you have at least this number of tabs open</div>
+        <div class="tip">Auto-close is disabled when you don't meet the threshold number of open tabs</div>
 
         <br>
 
         <input type="submit" class="submit" value="Save">
+        <div class="submit-indicator"></div>
+
       </form>
     </div>
 

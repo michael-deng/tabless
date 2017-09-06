@@ -62,7 +62,7 @@ chrome.runtime.getBackgroundPage(function(bg) {
     //   toggleLock(tabId);
     // });
 
-    cell3.innerHTML = "<div class=\"tab-pin\"><img title=\"Pin a tab\" src=\"tabless_pin_red.png\"><img title=\"Pin a tab\" src=\"tabless_pin_grey.png\"></div>";
+    cell3.innerHTML = "<div class=\"tab-pin\"><img title=\"Pin this tab\" src=\"tabless_pin_red.png\"><img title=\"Pin this tab\" src=\"tabless_pin_grey.png\"></div>";
     if (!locked) {
       cell3.getElementsByTagName("img")[0].style.display = "none";
       // cell3.innerHTML = "<img src=\"tabless_pin_red.png\">";
@@ -224,6 +224,11 @@ chrome.runtime.getBackgroundPage(function(bg) {
 
     minOpenTabsError.innerHTML = "";
 
+    // Show submit indicator as "Saving..." and change it to "Done." in two seconds
+    var submitIndicator = document.getElementsByClassName("submit-indicator")[0];
+    submitIndicator.style.display = "block";
+    submitIndicator.innerHTML = "Saving...";
+
     // Time limit will be stored in minutes
     var timeLimit = 60 * parseInt(timeLimitHours.value) + parseInt(timeLimitMinutes.value);
     bg.timeLimit = timeLimit;
@@ -231,6 +236,17 @@ chrome.runtime.getBackgroundPage(function(bg) {
     chrome.storage.sync.set({
       "timeLimit": timeLimit,
       "minOpenTabs": minOpenTabs.value
+    }, function() {
+      if (chrome.runtime.lastError) {
+        // Save failure
+        submitIndicator.innerHTML = "We hit a trying to save your settings, please try again!";
+        return false;
+      } else {
+        // Save success
+        setTimeout(function() {
+          submitIndicator.innerHTML = "Saved!";
+        }, 500);
+      }
     });
  
     // Update the timers of every tab

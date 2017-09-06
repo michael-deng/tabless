@@ -188,7 +188,7 @@ div.active {
   border-radius: 2px;
   background: none;
   height: 30px;
-  width: 50px;
+  width: 40px;
   padding: 3px;
   font-size: 1em;
   font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
@@ -201,6 +201,10 @@ div.active {
 
 #settings-form input.submit {
   cursor: pointer;
+  background: #E71D36;
+  color: white;
+  border: none;
+  width: 80px;
 }
 
 #settings-form input.submit:hover {
@@ -217,6 +221,14 @@ div.active {
   color: #888888;
   font-size: 0.75em;
   line-height: 1.2em;
+}
+
+.submit-indicator {
+  color: #888888;
+  font-size: 0.75em;
+  line-height: 1.2em;
+  margin-top: 2px;
+  display: none;
 }
 
 /* Tooltip container */

@@ -1,0 +1,312 @@
+body {
+  font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
+  font-size: 100%;
+  margin: 0;
+  background: white;
+  color: #333333;
+}
+
+.header {
+  height: 60px;
+  width: 100%;
+  border-bottom: 1px solid #DDDDDD;
+}
+
+#title, #settings-open-btn, #modal-close-btn {
+  float: left;
+  height: 60px;
+  width: 160px;
+  line-height: 60px;
+  font-size: 1.2em;
+}
+
+#title {
+  text-align: center;
+}
+
+#settings-open-btn {
+  padding-left: 20px;
+  color: #888888;
+}
+
+#modal-close-btn {
+  text-align: right;
+  padding-right: 20px;
+  color: #888888;
+}
+
+#settings-open-btn i, #modal-close-btn i {
+  padding: 5px;
+  cursor: pointer;
+}
+
+#settings-open-btn i:hover, #modal-close-btn i:hover {
+  color: #333333;
+}
+
+/* Tabbed menu in popup */
+
+/* Style the tab */
+div.tab {
+  overflow: hidden;
+}
+
+/* Style the buttons inside the tab */
+div.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+}
+
+/* Change background color of buttons on hover */
+div.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+div.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+}
+
+div.active {
+  display: block;
+}
+
+
+
+/* Tabs list */
+
+#tabs {
+  padding: 15px 20px;
+}
+
+#pin-all, #unpin-all {
+  float: right;
+  font-size: 0.8em;
+  margin-left: 0.5em;
+  padding: 5px;
+  cursor: pointer;
+}
+
+#pin-all:hover, #unpin-all:hover {
+  text-decoration: underline;
+}
+
+#tabs-table {
+  /* avoid an excessively wide status text */
+  white-space: pre;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: 100%;
+}
+
+#tabs-table tr td {
+  min-width: 24px;  /* Prevent tabs table columns from changing slightly when materializing initial images */
+  padding: 5px;
+  overflow: auto;
+}
+
+#tabs-table .favicon {
+  height: 20px;
+  width: 20px;
+  border-radius: 2px;
+}
+
+.tab-title {
+  white-space: pre;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-size: 0.9em;
+  width: 360px;
+}
+
+.tab-timer {
+  margin-top: 3px;
+  font-size: 0.75em;
+  color: #888888;
+}
+
+.tab-pin {
+  cursor: pointer;
+  padding: 5px;
+}
+
+.tab-pin img {
+  height: 24px;
+  width: auto;
+  -webkit-user-select: none;  /* Stop blue highlighting */
+  user-select: none;
+}
+
+
+
+/* Form */
+
+#settings {
+  height: 100%;
+  width: 300px;
+  position: fixed;
+  top: 0;
+  left: -300px;
+  transition: 0.2s;
+  background: white;
+}
+
+#settings #settings-title {
+  float: left;
+  height: 60px;
+  width: 100px;
+  line-height: 60px;
+  text-align: center;
+  font-size: 1.2em;
+}
+
+#settings #settings-close-btn {
+  float: left;
+  height: 60px;
+  width: 100px;
+  line-height: 60px;
+  color: #888888;
+  padding-left: 20px;
+  font-size: 1.2em;
+}
+
+#settings #settings-close-btn i {
+  padding: 5px;
+  cursor: pointer;
+}
+
+#settings-close-btn i:hover {
+  color: #333333;
+}
+
+#settings-form {
+  padding: 15px 20px;
+}
+
+#settings-form input {
+  margin: 5px 0 3px 0;
+  border: 1px solid #888888;
+  border-radius: 2px;
+  background: none;
+  height: 30px;
+  width: 40px;
+  padding: 3px;
+  font-size: 1em;
+  font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
+}
+
+#settings-form input:focus {
+  outline-width: 0;
+  border-color: #333333;
+}
+
+#settings-form input.submit {
+  cursor: pointer;
+  background: #E71D36;
+  color: white;
+  border: none;
+  width: 80px;
+}
+
+#settings-form input.submit:hover {
+  border-color: #333333;
+}
+
+#time-limit-error, #min-open-tabs-error {
+  color: red;
+  font-size: 0.75em;
+  margin: 2px 0 2px 0;
+}
+
+.tip {
+  color: #888888;
+  font-size: 0.75em;
+  line-height: 1.2em;
+}
+
+.submit-indicator {
+  color: #888888;
+  font-size: 0.75em;
+  line-height: 1.2em;
+  margin-top: 2px;
+  display: none;
+}
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 180px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 2px;
+
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 1;
+  top: -14px;
+  left: 160%;
+}
+
+#tooltiptext2 {
+  width: 240px;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+.tooltip .tooltiptext::after {
+  content: " ";
+  position: absolute;
+  top: 50%;
+  right: 100%; /* To the left of the tooltip */
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent black transparent transparent;
+}
+
+
+
+/* 
+Design by echojanz: 
+http://dribbble.com/shots/1039179-Slide-Button?list=users
+*/
+
+/*
+Technical inspiration from tutorial by Hugo Giraudel:
+https://tympanus.net/codrops/2012/09/13/button-switches-with-checkboxes-and-css3-fanciness/
+*/
+
+/* Font Awesome */
+
+
+[class*="fontawesome-"]:before {
+  font-family: 'FontAwesome', sans-serif;
+}
+
+/* Global styles */
+*, *:after, *:before {
+  box-sizing: border-box;
+}
+

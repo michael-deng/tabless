@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<!--
+ This page is shown when the extension button is clicked, because the
+ "browser_action" field in manifest.json contains the "default_popup" key with
+ value "popup.html".
+ -->
+<html>
+  <head>
+    <title>Getting Started Extension's Popup</title>
+
+    <!--
+      - JavaScript and HTML must be in separate files: see our Content Security
+      - Policy documentation[1] for details and explanation.
+      -
+      - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
+     -->
+
+    <!-- I can access styles.css directly instead of having to use chrome.runtime.getURL
+    because this page (modal.html) is part of the chrome extension -->
+    <link rel="stylesheet" href="modal.css">
+    <script src="https://use.fontawesome.com/5ea7d79d6a.js"></script>
+  </head>
+  <body>
+    <div class="header">
+        <div id="settings-open-btn"><i class="fa fa-cog" aria-hidden="true"></i></div>
+        <div id="title">Tabless</div>
+        <div id="modal-close-btn"><i class="fa fa-times" aria-hidden="true"></i></div>
+      </div>
+    </div>
+
+    <div id="tabs">
+      <div id="unpin-all">Unpin all</div>
+      <div id="pin-all">Pin all</div>
+      <table id="tabs-table"></table>
+    </div>
+
+    <div id="settings">
+
+      <div class="header">
+        <div id="settings-close-btn"><i class="fa fa-arrow-left" aria-hidden="true"></i></div>
+        <div id="settings-title">Settings</div>
+      </div>
+
+      <form id="settings-form">
+
+        <label>Time limit</label>
+        <!-- <div class="tooltip">
+          <i class="fa fa-question-circle" aria-hidden="true"></i>
+          <span class="tooltiptext">How long to keep inactive tabs open?</span>
+        </div> -->
+        <br>
+        <input id="time-limit-hours"> hours
+        <input id="time-limit-minutes"> minutes
+        <div id="time-limit-error"></div>
+
+        <br>
+
+        <label>Autoclose threshold</label>
+        <!-- <div class="tooltip">
+          <i class="fa fa-question-circle" aria-hidden="true"></i>
+          <span class="tooltiptext" id="tooltiptext2">Stop auto-close when there are only a few tabs open</span>
+        </div> -->
+        <br>
+        <input id="min-open-tabs"> tabs
+        <div id="min-open-tabs-error"></div>
+        <div class="tip">Autoclose is disabled when you have less than the threshold number of tabs open</div>
+
+        <br>
+
+        <input type="submit" class="submit" value="Save">
+        <div class="submit-indicator"></div>
+
+      </form>
+    </div>
+    <script src="modalFuncs.js"></script>
+    <script src="modal.js"></script>
+  </body>
+</html>
+

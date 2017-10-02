@@ -1,0 +1,30 @@
+{
+  "name": "tabless",
+  "version": "1.0.0",
+  "description": "Make your tab life less cluttered",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michael-deng/tabless.git"
+  },
+  "author": "Michael Deng",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/michael-deng/tabless/issues"
+  },
+  "homepage": "https://github.com/michael-deng/tabless#readme",
+  "dependencies": {
+    "chai": "^4.1.2",
+    "jsdom": "^11.2.0",
+    "mocha": "^3.5.3",
+    "phantomjs": "^2.1.7",
+    "rewire": "^2.5.2",
+    "sinon-chrome": "^2.2.1"
+  }
+}

@@ -36,7 +36,7 @@ describe('modal page with less than threshold tabs', function() {
     // Set up mocks
     chrome.runtime.getBackgroundPage.yields({
       tabs: belowThresholdTabs,
-      timeLimit: '5',
+      duration: '300000',
       threshold: '5'
     });
 
@@ -223,7 +223,7 @@ describe('modal page with more than threshold tabs', function() {
     // Set up mocks
     chrome.runtime.getBackgroundPage.yields({
       tabs: aboveThresholdTabs,
-      timeLimit: '5',
+      duration: '300000',
       threshold: '5'
     });
 

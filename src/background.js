@@ -4,12 +4,12 @@ The structure of the tabs dictionary, this keeps global state of all tabs:
 tabs = {
 	tabId: {
 		"Tab": object,
-		"Date": object,
+		"End": object,
 		"Pinned": boolean
 	}
 }
 
-The two variables stored in chrome storage are timeLimit and threshold
+The two variables stored in chrome storage are duration and threshold
 because they need to persist over multiple chrome sessions.
 */
 
@@ -21,38 +21,38 @@ because they need to persist over multiple chrome sessions.
 */
 
 var tabs = {};
-var timeLimit;  // How long to wait after the latest activation before closing a tab
+var duration;  // How long to wait after the latest activation before closing a tab (milliseconds)
 var threshold;  // We only start autoclosing if there are more than the threshold number of tabs open
 var numTabs = 0;  // Need an in-memory count of the # of tabs because when many alarms go off together, we need to make sure
-									// we don't delete past the threshold (because multiple alarms can sound before the removal happens)
+				  // we don't delete past the threshold (because multiple alarms can sound before the removal happens)
 
-// Get timeLimit and threshold when chrome starts
-chrome.storage.sync.get(["timeLimit", "threshold"], function(settings) {
-  if (!("timeLimit" in settings && "threshold" in settings)) {
-    chrome.storage.sync.set({
-      "timeLimit": 5,
-      "threshold": 5
-    });
-    timeLimit = 5;
-    threshold = 5;
-  } else {
-    timeLimit = parseInt(settings["timeLimit"]);
-    threshold = parseInt(settings["threshold"]);
-  }
+// Get duration and threshold when chrome starts
+chrome.storage.sync.get(["duration", "threshold"], function(settings) {
+	if (!("duration" in settings && "threshold" in settings)) {
+		chrome.storage.sync.set({
+			"duration": 300000,
+			"threshold": 5
+		});
+		duration = 300000;
+		threshold = 5;
+	} else {
+		duration = parseInt(settings["duration"]);
+		threshold = parseInt(settings["threshold"]);
+	}
 
-  // Make sure we get all current tabs after getting current settings
-  chrome.tabs.query({}, function(tabList) {
+	// Make sure we get all current tabs after getting current settings
+	chrome.tabs.query({}, function(tabList) {
 		for (var i = 0; i < tabList.length; i++) {
 			var tab = tabList[i];
 			console.log('calling addOrUpdateTab');
-			addOrUpdateTab(tab.id, tab, timeLimit);
+			addOrUpdateTab(tab.id, tab, duration);
 		}
 	});
 });
 
 // Called whenever a tab is created or updated
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-	addOrUpdateTab(tabId, tab, timeLimit);
+	addOrUpdateTab(tabId, tab, duration);
 });
 
 // Handle pre-rendering, which alters tab ids
@@ -71,14 +71,14 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 	// We also don't need to do anything if we're below the threshold
 	if (tabs[tabId] && !tabs[tabId]["Pinned"] && Object.keys(tabs).length > threshold) {
 		
-		tabs[tabId]["Date"] = Date.now();
+		tabs[tabId]["End"] = Date.now() + duration;
 
 		chrome.runtime.sendMessage({text: "start", tabId: tabId}, function(response) {
 			console.log("got start response in onActivated");
 		});
 
 		// New alarm automatically clears the previous one
-		chrome.alarms.create(tabId.toString(), {delayInMinutes: timeLimit});
+		chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
 	}
 });
 
@@ -116,15 +116,15 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
 	}
 });
 
-// Check if computer goes to sleep/wakes up
-chrome.idle.onStateChanged.addListener(function(idleState) {
-	console.log("state changed")
-	if (idleState == 'active') {
-		unpauseAutoclose();
-	} else if (idleState == 'locked') {
-		stopAutoclose();
-	}
-});
+// // Check if computer goes to sleep/wakes up
+// chrome.idle.onStateChanged.addListener(function(idleState) {
+// 	console.log("state changed")
+// 	if (idleState == 'active') {
+// 		unpauseAutoclose();
+// 	} else if (idleState == 'locked') {
+// 		stopAutoclose();
+// 	}
+// });
 
 
 // Toggle modal

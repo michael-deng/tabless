@@ -14,9 +14,9 @@ function togglePin(tabId) {
     pinContainer.children[1].style.display = "initial";
     bg.tabs[tabId]["Pinned"] = false;
     if (Object.keys(bg.tabs).length > bg.threshold) { 
-      chrome.alarms.create(tabId.toString(), {delayInMinutes: bg.timeLimit});
-      bg.tabs[tabId]["Date"] = Date.now();
-      modalTabs[tabId]["TimerId"] = countdown(Date.now(), timer, bg.timeLimit);
+      bg.tabs[tabId]["End"] = Date.now() + bg.duration;
+      chrome.alarms.create(tabId.toString(), {when: bg.tabs[tabId]["End"]});
+      modalTabs[tabId]["TimerId"] = countdown(bg.tabs[tabId]["End"], timer);
     } else {
       timer.innerHTML = "Below threshold";
     }
@@ -33,24 +33,21 @@ function togglePin(tabId) {
 }
 
 /**
- * Make element a countdown to date + timeLimit
+ * Make element a countdown to end
  *
- * @param {number} date - When the tab was created or last opened
+ * @param {number} end - UTC time of when the tab should be closed
  * @param {object} element - The HTML element that will contain the countdown
- * @params {number} timeLimit - How long to store tab for
  * @returns {number} The timer's Id, which can be called on by clearInterval()
  * to stop the timer
  */
-function countdown(date, element, timeLimit) {
-  // Set the date we're counting down to
-  var countDownDate = date + timeLimit * 60000;
+function countdown(end, element) {
 
-  setTimer(countDownDate, element);
+  setTimer(end, element);
 
   // Update the count down every 1 second
   var x = setInterval(function() {
 
-    setTimer(countDownDate, element);
+    setTimer(end, element);
 
   }, 1000);
   return x;

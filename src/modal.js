@@ -25,7 +25,7 @@ chrome.runtime.getBackgroundPage(function(background) {
   // Populate the tabs table row by row
   for (key in bg.tabs) {
     var tab = bg.tabs[key]["Tab"];
-    var date = bg.tabs[key]["Date"];
+    var end = bg.tabs[key]["End"];
     var pinned = bg.tabs[key]["Pinned"];
     var row = table.insertRow(-1);
 
@@ -60,7 +60,7 @@ chrome.runtime.getBackgroundPage(function(background) {
       cell3.getElementsByTagName("img")[0].style.display = "none";
       // cell3.innerHTML = "<img src=\"tabless_pin_red.png\">";
       if (Object.keys(bg.tabs).length > bg.threshold) {
-        modalTabs[key]["TimerId"] = countdown(date, timer, bg.timeLimit);
+        modalTabs[key]["TimerId"] = countdown(end, timer);
       } else {
         timer.innerHTML = "Below threshold";
       }
@@ -82,23 +82,21 @@ chrome.runtime.getBackgroundPage(function(background) {
   }
 
   // Populate "Settings" tab with information from background
-  var timeLimit = bg.timeLimit;
-  timeLimitHours = Math.floor(timeLimit/60);
-  timeLimitMinutes = timeLimit % 60;
-  threshold = bg.threshold;
-  document.getElementById("time-limit-hours").value = timeLimitHours;
-  document.getElementById("time-limit-minutes").value = timeLimitMinutes;
-  document.getElementById("min-open-tabs").value = threshold;
+  durationHours = Math.floor(bg.duration / 3600000);
+  durationMinutes = Math.floor((bg.duration % 3600000) / 60000);
+  document.getElementById("time-limit-hours").value = durationHours;
+  document.getElementById("time-limit-minutes").value = durationMinutes;
+  document.getElementById("min-open-tabs").value = bg.threshold;
 
   // // Populate "Settings" tab with information from storage
-  // chrome.storage.sync.get(["timeLimit", "threshold"], function(settings) {
-  //   var timeLimit = settings["timeLimit"];
-  //   timeLimitHours = Math.floor(timeLimit/60);
-  //   timeLimitMinutes = timeLimit % 60;
+  // chrome.storage.sync.get(["duration", "threshold"], function(settings) {
+  //   var duration = settings["duration"];
+  //   durationHours = Math.floor(duration/60);
+  //   durationMinutes = duration % 60;
   //   threshold = settings["threshold"];
 
-  //   document.getElementById("time-limit-hours").value = timeLimitHours;
-  //   document.getElementById("time-limit-minutes").value = timeLimitMinutes;
+  //   document.getElementById("time-limit-hours").value = durationHours;
+  //   document.getElementById("time-limit-minutes").value = durationMinutes;
   //   document.getElementById("min-open-tabs").value = threshold;
   // });
 
@@ -138,7 +136,7 @@ chrome.runtime.getBackgroundPage(function(background) {
       cell3.getElementsByTagName("img")[0].style.display = "none";
       // cell3.innerHTML = "<img src=\"tabless_pin_red.png\">";
       if (Object.keys(bg.tabs).length > bg.threshold) {
-        modalTabs[key]["TimerId"] = countdown(bg.tabs[key]["Date"], timer, bg.timeLimit);
+        modalTabs[key]["TimerId"] = countdown(bg.tabs[key]["End"], timer);
       } else {
         timer.innerHTML = "Below threshold";       
       }
@@ -171,7 +169,7 @@ chrome.runtime.getBackgroundPage(function(background) {
       var tabId = msg.tabId;
 
       clearInterval(modalTabs[tabId]["TimerId"]);  // Clear previous timer if it exists
-      modalTabs[tabId]["TimerId"] = countdown(bg.tabs[tabId]["Date"], modalTabs[tabId]["Timer"], bg.timeLimit);
+      modalTabs[tabId]["TimerId"] = countdown(bg.tabs[tabId]["End"], modalTabs[tabId]["Timer"]);
     }
 
     else if (msg.text == "stop") {
@@ -186,73 +184,73 @@ chrome.runtime.getBackgroundPage(function(background) {
   document.getElementById("settings-form").addEventListener("submit", function(event) {
     event.preventDefault();
 
-    var timeLimitHours = document.getElementById("time-limit-hours");
-    var timeLimitMinutes = document.getElementById("time-limit-minutes")
-    var timeLimitError = document.getElementById("time-limit-error");
+    var durationHours = document.getElementById("time-limit-hours");
+    var durationMinutes = document.getElementById("time-limit-minutes")
+    var durationError = document.getElementById("time-limit-error");
 
-    if (timeLimitHours.value == "") {
-      timeLimitHours.value = 0;
+    if (durationHours.value == "") {
+      durationHours.value = 0;
     }
 
-    if (!isNumeric(timeLimitHours.value)) {
-      timeLimitError.innerHTML = "Hours has to be a number";
-      timeLimitHours.focus();
+    if (!isNumeric(durationHours.value)) {
+      durationError.innerHTML = "Hours has to be a number";
+      durationHours.focus();
       return false;
     }
 
-    if (timeLimitHours.value < 0) {
-      timeLimitError.innerHTML = "Hours cannot be less than 0";
-      timeLimitHours.focus();
+    if (durationHours.value < 0) {
+      durationError.innerHTML = "Hours cannot be less than 0";
+      durationHours.focus();
       return false;
     }
 
-    if (timeLimitHours.value > 720) {
-      timeLimitError.innerHTML = "Hours cannot be greater than 720";
-      timeLimitHours.focus();
+    if (durationHours.value > 720) {
+      durationError.innerHTML = "Hours cannot be greater than 720";
+      durationHours.focus();
       return false;
     }
 
-    if (timeLimitHours.value % 1 != 0) {
-      timeLimitError.innerHTML = "Hours has to be a whole number";
-      timeLimitHours.focus();
+    if (durationHours.value % 1 != 0) {
+      durationError.innerHTML = "Hours has to be a whole number";
+      durationHours.focus();
       return false;
     }
 
-    if (timeLimitMinutes.value == "") {
-      timeLimitMinutes.value = 0;
+    if (durationMinutes.value == "") {
+      durationMinutes.value = 0;
     }
 
-    if (!isNumeric(timeLimitMinutes.value)) {
-      timeLimitError.innerHTML = "Minutes has to be a number";
-      timeLimitMinutes.focus();
+    if (!isNumeric(durationMinutes.value)) {
+      durationError.innerHTML = "Minutes has to be a number";
+      durationMinutes.focus();
       return false;
     }
 
-    if (timeLimitMinutes.value < 0) {
-      timeLimitError.innerHTML = "Minutes cannot be less than 0";
-      timeLimitMinutes.focus();
+    if (durationMinutes.value < 0) {
+      durationError.innerHTML = "Minutes cannot be less than 0";
+      durationMinutes.focus();
       return false;
     }
 
-    if (timeLimitMinutes.value % 1 != 0) {
-      timeLimitError.innerHTML = "Minutes has to be a whole number";
-      timeLimitMinutes.focus();
+    if (durationMinutes.value % 1 != 0) {
+      durationError.innerHTML = "Minutes has to be a whole number";
+      durationMinutes.focus();
       return false;
     }
 
-    if (timeLimitMinutes.value > 59) {
-      timeLimitError.innerHTML = "Minutes cannot be greater than 59";
-      timeLimitMinutes.focus();
+    if (durationMinutes.value > 59) {
+      durationError.innerHTML = "Minutes cannot be greater than 59";
+      durationMinutes.focus();
       return false;
     }
 
-    if (timeLimitHours.value == 0 && timeLimitMinutes.value == 0) {
-      timeLimitError.innerHTML = "Time limit has to be at least 1 minute";
-      timeLimitMinutes.focus();
+    if (durationHours.value == 0 && durationMinutes.value == 0) {
+      durationError.innerHTML = "Duration has to be at least 1 minute";
+      durationMinutes.focus();
       return false;
     }
 
-    timeLimitError.innerHTML = "";
+    durationError.innerHTML = "";
 
     var threshold = document.getElementById("min-open-tabs");
     var thresholdError = document.getElementById("min-open-tabs-error");
@@ -294,13 +292,12 @@ chrome.runtime.getBackgroundPage(function(background) {
     submitIndicator.style.display = "block";
     submitIndicator.innerHTML = "Saving...";
 
-    // Time limit will be stored in minutes
-    var timeLimit = 60 * parseInt(timeLimitHours.value) + parseInt(timeLimitMinutes.value);
-    bg.timeLimit = timeLimit;
+    // Duration will be stored in minutes
+    bg.duration = 3600000 * parseInt(durationHours.value) + 60000 * parseInt(durationMinutes.value);
     bg.threshold = threshold.value;
 
     chrome.storage.sync.set({
-      "timeLimit": timeLimit,
+      "duration": bg.duration,
       "threshold": threshold.value
     }, function() {
       if (chrome.runtime.lastError) {
@@ -319,14 +316,14 @@ chrome.runtime.getBackgroundPage(function(background) {
       // Update the timers of every tab
       console.log("Start autoclose in settings");
       chrome.alarms.clearAll();  // Might have to add callback in parameter
-      var date = Date.now();
+      var end = Date.now() + bg.duration;
       for (key in bg.tabs) {
         if (!bg.tabs[key]["Pinned"]) {
-          bg.tabs[key]["Date"] = date;
-          chrome.alarms.create(key.toString(), {delayInMinutes: timeLimit});
+          bg.tabs[key]["End"] = end;
+          chrome.alarms.create(key.toString(), {when: end});
           clearInterval(modalTabs[key]["TimerId"]);
           var timer = modalTabs[key]["Timer"];
-          modalTabs[key]["TimerId"] = countdown(date, timer, timeLimit);  // Update the timers UI in the "Tabs" tab
+          modalTabs[key]["TimerId"] = countdown(end, timer);  // Update the timers UI in the "Tabs" tab
         }
       }
     } else {

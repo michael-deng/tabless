@@ -3,9 +3,9 @@
  *
  * @param {number} tabId - The Id of the new tab
  * @param {object} tab - The actual tab object
- * @params {number} timeLimit - How long to store tab for
+ * @params {number} duration - How long to store tab for (milliseconds)
  */
-function addOrUpdateTab(tabId, tab, timeLimit) {
+function addOrUpdateTab(tabId, tab, duration) {
 	if (!(tabId in tabs)) {
 		console.log("addOrUpdateTab started")
 		// Add a tab
@@ -18,14 +18,14 @@ function addOrUpdateTab(tabId, tab, timeLimit) {
 			tabs[tabId] = {};
 			tabs[tabId]["Tab"] = tab;
 			tabs[tabId]["Pinned"] = false;
-			tabs[tabId]["Date"] = Date.now();
-			chrome.alarms.create(tabId.toString(), {delayInMinutes: timeLimit});
+			tabs[tabId]["End"] = Date.now() + duration;
+			chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
 		} else {
 			tabs[tabId] = {};
 			tabs[tabId]["Tab"] = tab;
 			tabs[tabId]["Pinned"] = false;
-			tabs[tabId]["Date"] = Date.now();
-			chrome.alarms.create(tabId.toString(), {delayInMinutes: timeLimit});
+			tabs[tabId]["End"] = Date.now() + duration;
+			chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
 		}
 
 		numTabs = Object.keys(tabs).length;
@@ -47,18 +47,20 @@ function addOrUpdateTab(tabId, tab, timeLimit) {
  */
 function startAutoclose() {
 	console.log("Autoclose started");
+	var end = Date.now() + duration;
 	for (var tabId in tabs) {
 
 		// Don't start auto-close if the tab is pinned
 		if (!tabs[tabId]["Pinned"]) {
 
-			tabs[tabId]["Date"] = Date.now();
+			tabs[tabId]["End"] = end;
+			console.log(tabs[tabId]["End"]);
 
 			chrome.runtime.sendMessage({text: "start", tabId: tabId}, function(response) {
 				console.log("got start response in startAutoclose");
 			});
 
-			chrome.alarms.create(tabId.toString(), {delayInMinutes: timeLimit});
+			chrome.alarms.create(tabId.toString(), {when: end});
 		}
 	}
 }

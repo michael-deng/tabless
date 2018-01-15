@@ -7,20 +7,28 @@
  */
 function addOrUpdateTab(tabId, tab, timeLimit) {
 	if (!(tabId in tabs)) {
+		console.log("addOrUpdateTab started")
 		// Add a tab
-		tabs[tabId] = {};
-		tabs[tabId]["Tab"] = tab;
-		tabs[tabId]["Pinned"] = false;
-
-		numTabs = Object.keys(tabs).length;
-
-		if (numTabs == threshold + 1) {
-			// Start autoclose if we pass threshold
-			startAutoClose();
-		} else if (numTabs > threshold + 1) {
+		if (numTabs < threshold) {
+			tabs[tabId] = {};
+			tabs[tabId]["Tab"] = tab;
+			tabs[tabId]["Pinned"] = false;
+		} else if (numTabs == threshold) {
+			startAutoclose();
+			tabs[tabId] = {};
+			tabs[tabId]["Tab"] = tab;
+			tabs[tabId]["Pinned"] = false;
+			tabs[tabId]["Date"] = Date.now();
+			chrome.alarms.create(tabId.toString(), {delayInMinutes: timeLimit});
+		} else {
+			tabs[tabId] = {};
+			tabs[tabId]["Tab"] = tab;
+			tabs[tabId]["Pinned"] = false;
 			tabs[tabId]["Date"] = Date.now();
 			chrome.alarms.create(tabId.toString(), {delayInMinutes: timeLimit});
 		}
+
+		numTabs = Object.keys(tabs).length;
 
 		// Have to populate tabs[tabId] fields before updating UI
 		chrome.runtime.sendMessage({text: "addTab", tabId: tabId}, function(response) {
@@ -35,17 +43,19 @@ function addOrUpdateTab(tabId, tab, timeLimit) {
 }
 
 /**
- * If we go above tab threshold, enable auto-close and reset previous timers if they exist
+ * If we go above tab threshold, enable auto-close and reset previous timers
  */
-function startAutoClose() {
-	console.log("Auto close started");
+function startAutoclose() {
+	console.log("Autoclose started");
 	for (var tabId in tabs) {
-		if (!tabs[tabId]["Pinned"]) {  // Don't start auto-close if the tab is pinned
+
+		// Don't start auto-close if the tab is pinned
+		if (!tabs[tabId]["Pinned"]) {
 
 			tabs[tabId]["Date"] = Date.now();
 
 			chrome.runtime.sendMessage({text: "start", tabId: tabId}, function(response) {
-				console.log("got startAutoClose response");
+				console.log("got start response in startAutoclose");
 			});
 
 			chrome.alarms.create(tabId.toString(), {delayInMinutes: timeLimit});
@@ -54,15 +64,38 @@ function startAutoClose() {
 }
 
 /**
- * If we go below tab threshold, disable auto-close
+ * If we unlock the computer, enable autoclose and restore existing timers
  */
-function stopAutoClose() {
-	console.log("Auto close stopped");
+function unpauseAutoclose() {
+	console.log("unpauseAutoclose started");
+	for (var tabId in tabs) {
+
+		// Don't unpause auto-close if the tab is pinned
+		if (!tabs[tabId]["Pinned"]) {
+
+			chrome.runtime.sendMessage({text: "start", tabId: tabId}, function(response) {
+				console.log("got startAutoclose response");
+			});
+
+			difference = Math.floor((Date.now() - tabs[tabId]["Date"]) / 60);
+
+			chrome.alarms.create(tabId.toString(), {delayInMinutes: difference});
+		}
+	}
+}
+
+/**
+ * If we go below tab threshold or the computer locks, disable auto-close
+ */
+function stopAutoclose() {
+	console.log("stopAutoclose started");
 	chrome.alarms.clearAll();
 	for (var tabId in tabs) {
-		if (!tabs[tabId]["Pinned"]) {  // Don't stop auto-close if the tab is pinned
+
+		// Don't stop auto-close if the tab is pinned
+		if (!tabs[tabId]["Pinned"]) {
 			chrome.runtime.sendMessage({text: "stop", tabId: tabId}, function(response) {
-				console.log("got stopAutoClose response");
+				console.log("got stopAutoclose response");
 			});
 		}
 	}

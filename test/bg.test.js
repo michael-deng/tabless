@@ -9,9 +9,9 @@ var window;
 var belowThresholdTabs;
 var aboveThresholdTabs;
 
-describe('background page', function () {
+describe('background page', function() {
 
-  beforeEach(function (done) {
+  beforeEach(function(done) {
 
     // Set up tabs
     belowThresholdTabs = { 
@@ -108,12 +108,12 @@ describe('background page', function () {
       scripts: [
         'src/backgroundFuncs.js'
       ],
-      created: function (errors, wnd) {
+      created: function(errors, wnd) {
         // attach `chrome` to window
         wnd.chrome = chrome;
         wnd.console = console;
       },
-      done: function (errors, wnd) {
+      done: function(errors, wnd) {
         if (errors) {
           console.log(errors);
           done(true);
@@ -122,8 +122,8 @@ describe('background page', function () {
 
           // Set up spies before loading background.js
           sinon.stub(window, 'addOrUpdateTab');
-          sinon.stub(window, 'startAutoClose');
-          sinon.stub(window, 'stopAutoClose');
+          sinon.stub(window, 'startAutoclose');
+          sinon.stub(window, 'stopAutoclose');
 
           const script = new vm.Script(fs.readFileSync('src/background.js'));
           jsdom.evalVMScript(window, script);
@@ -133,12 +133,12 @@ describe('background page', function () {
     });
   });
 
-  afterEach(function () {
+  afterEach(function() {
     chrome.reset();
     window.close();
   });
 
-  it('should get settings and existing tabs on start-up', function () {
+  it('should get settings and existing tabs on start-up', function() {
     window.tabs = belowThresholdTabs;
 
     sinon.assert.calledOnce(chrome.storage.sync.get);
@@ -146,7 +146,7 @@ describe('background page', function () {
     sinon.assert.calledTwice(window.addOrUpdateTab);
   });
 
-  it('should attach listeners on start-up', function () {
+  it('should attach listeners on start-up', function() {
     window.tabs = belowThresholdTabs;
 
     sinon.assert.calledOnce(chrome.tabs.onUpdated.addListener);
@@ -157,7 +157,7 @@ describe('background page', function () {
     sinon.assert.calledOnce(chrome.browserAction.onClicked.addListener);
   });
 
-  it('should add a tab and when onUpdated is called', function () {
+  it('should add a tab and when onUpdated is called', function() {
     window.tabs = belowThresholdTabs;
 
     chrome.tabs.onUpdated.dispatch(42);
@@ -166,7 +166,7 @@ describe('background page', function () {
     sinon.assert.calledThrice(window.addOrUpdateTab);
   });
 
-  it('should not reset timer/alarm when onActivated is called below threshold ', function () {
+  it('should not reset timer/alarm when onActivated is called below threshold ', function() {
     window.tabs = belowThresholdTabs;
 
     chrome.tabs.onActivated.dispatch({tabId: 42});
@@ -174,7 +174,7 @@ describe('background page', function () {
     sinon.assert.notCalled(chrome.alarms.create);
   });
 
-  it('should reset timer/alarm when onActivated is called above threshold', function () {
+  it('should reset timer/alarm when onActivated is called above threshold', function() {
     window.tabs = aboveThresholdTabs;
 
     chrome.tabs.onActivated.dispatch({tabId: 42});
@@ -183,27 +183,27 @@ describe('background page', function () {
     sinon.assert.calledOnce(chrome.alarms.create);
   });
 
-  it('should remove tab when on onRemoved is called below threshold', function () {
+  it('should remove tab when on onRemoved is called below threshold', function() {
     window.tabs = belowThresholdTabs;
 
     chrome.tabs.onRemoved.dispatch(42);
 
     sinon.assert.calledOnce(chrome.runtime.sendMessage);
     sinon.assert.calledOnce(chrome.alarms.clear);
-    sinon.assert.notCalled(window.stopAutoClose);
+    sinon.assert.notCalled(window.stopAutoclose);
   });
 
-  it('should disable autoclose when onRemoved is called one above threshold', function () {
+  it('should disable autoclose when onRemoved is called one above threshold', function() {
     window.tabs = aboveThresholdTabs;
     
     chrome.tabs.onRemoved.dispatch(42);
 
     sinon.assert.calledOnce(chrome.runtime.sendMessage);
     sinon.assert.calledOnce(chrome.alarms.clear);
-    sinon.assert.calledOnce(window.stopAutoClose);
+    sinon.assert.calledOnce(window.stopAutoclose);
   });
 
-  it('should not remove tab when onAlarm is called under threshold', function () {
+  it('should not remove tab when onAlarm is called under threshold', function() {
     window.tabs = belowThresholdTabs;
     window.numTabs = 2;
 
@@ -212,7 +212,7 @@ describe('background page', function () {
     sinon.assert.notCalled(chrome.tabs.remove);
   });
 
-  it('should remove tab when onAlarm is called above threshold', function () {
+  it('should remove tab when onAlarm is called above threshold', function() {
     window.tabs = aboveThresholdTabs;
     window.numTabs = 6;
     
@@ -221,7 +221,7 @@ describe('background page', function () {
     sinon.assert.calledOnce(chrome.tabs.remove);
   });
 
-  it('should not add duplicate tab when AddOrUpdateTab is called', function () {
+  it('should not add duplicate tab when AddOrUpdateTab is called', function() {
     window.tabs = belowThresholdTabs;
 
     window.addOrUpdateTab.restore();  // Restore stubbed method
@@ -231,7 +231,7 @@ describe('background page', function () {
     sinon.assert.notCalled(chrome.runtime.sendMessage);
   });
 
-  it('should add tab when AddOrUpdateTab is called', function () {
+  it('should add tab when AddOrUpdateTab is called', function() {
     window.tabs = belowThresholdTabs;
 
     window.addOrUpdateTab.restore();  // Restore stubbed method
@@ -239,11 +239,11 @@ describe('background page', function () {
     window.addOrUpdateTab(43);
 
     sinon.assert.calledOnce(chrome.runtime.sendMessage);
-    sinon.assert.notCalled(window.startAutoClose);
+    sinon.assert.notCalled(window.startAutoclose);
     sinon.assert.notCalled(chrome.alarms.create);
   });
 
-  it('should call startAutoClose after AddOrUpdateTab is called 6 times', function () {
+  it('should call startAutoclose after AddOrUpdateTab is called 6 times', function() {
     window.tabs = belowThresholdTabs;
 
     window.addOrUpdateTab.restore();  // Restore stubbed method
@@ -254,26 +254,26 @@ describe('background page', function () {
     window.addOrUpdateTab(46);
 
     sinon.assert.callCount(chrome.runtime.sendMessage, 4);
-    sinon.assert.calledOnce(window.startAutoClose);
+    sinon.assert.calledOnce(window.startAutoclose);
   });
 
-  it('should create alarms when startAutoClose is called', function () {
+  it('should create alarms when startAutoclose is called', function() {
     window.tabs = belowThresholdTabs;
 
-    window.startAutoClose.restore();
+    window.startAutoclose.restore();
 
-    window.startAutoClose();
+    window.startAutoclose();
 
     sinon.assert.callCount(chrome.runtime.sendMessage, 2);
     sinon.assert.calledTwice(chrome.alarms.create);
   });
 
-  it('should stop alarms when stopAutoClose is called', function () {
+  it('should stop alarms when stopAutoclose is called', function() {
     window.tabs = belowThresholdTabs;
 
-    window.stopAutoClose.restore();
+    window.stopAutoclose.restore();
 
-    window.stopAutoClose();
+    window.stopAutoclose();
 
     sinon.assert.callCount(chrome.runtime.sendMessage, 2);
     sinon.assert.calledOnce(chrome.alarms.clearAll);

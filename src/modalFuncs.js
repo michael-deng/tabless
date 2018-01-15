@@ -8,6 +8,8 @@ function togglePin(tabId) {
   var pinContainer = modalTabs[tabId]["Pin"];
 
   if (bg.tabs[tabId]["Pinned"] == true) {
+    // Unpin the tab
+    console.log("unpinning tab");
     pinContainer.children[0].style.display = "none";
     pinContainer.children[1].style.display = "initial";
     bg.tabs[tabId]["Pinned"] = false;
@@ -19,6 +21,8 @@ function togglePin(tabId) {
       timer.innerHTML = "Below threshold";
     }
   } else {
+    // Pin the tab
+    console.log("pinning tab");
     pinContainer.children[0].style.display = "initial";
     pinContainer.children[1].style.display = "none";
     bg.tabs[tabId]["Pinned"] = true;

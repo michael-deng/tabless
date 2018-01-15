@@ -9,9 +9,9 @@ var window;
 var belowThresholdTabs;
 var aboveThresholdTabs;
 
-describe('modal page with less than threshold tabs', function () {
+describe('modal page with less than threshold tabs', function() {
   
-  beforeEach(function (done) {
+  beforeEach(function(done) {
 
     // Set up tabs
     belowThresholdTabs = { 
@@ -52,12 +52,12 @@ describe('modal page with less than threshold tabs', function () {
       scripts: [
         'src/modalFuncs.js'
       ],
-      created: function (errors, wnd) {
+      created: function(errors, wnd) {
         // attach `chrome` to window
         wnd.chrome = chrome;
         wnd.console = console;
       },
-      done: function (errors, wnd) {
+      done: function(errors, wnd) {
         if (errors) {
           console.log(errors);
           done(true);
@@ -79,18 +79,18 @@ describe('modal page with less than threshold tabs', function () {
     });
   });
 
-  afterEach(function () {
+  afterEach(function() {
     chrome.reset();
     window.close();
   });
 
-  it('should get background page and create table on start-up', function () {
+  it('should get background page and create table on start-up', function() {
     sinon.assert.calledOnce(chrome.runtime.getBackgroundPage);
     sinon.assert.notCalled(window.countdown);
     assert.equal(window.document.getElementById('tabs-table').rows.length, 2);
   });
 
-  it('should handle addTab command', function () {
+  it('should handle addTab command', function() {
     window.bg.tabs['80'] = { 
       Tab: { 
         favIconUrl: 'https://www.google.ru/favicon.ico',
@@ -105,7 +105,7 @@ describe('modal page with less than threshold tabs', function () {
     assert.equal(window.document.getElementById('tabs-table').rows.length, 3);
   });
 
-  it('should handle removeTab command', function () {
+  it('should handle removeTab command', function() {
     chrome.runtime.onMessage.dispatch({text: 'removeTab', tabId: '81'}, null, null);
 
     sinon.assert.calledOnce(window.clearInterval);
@@ -113,20 +113,20 @@ describe('modal page with less than threshold tabs', function () {
     assert.equal(Object.keys(window.modalTabs).length, 1);
   });
 
-  it('should handle start command', function () {
+  it('should handle start command', function() {
     chrome.runtime.onMessage.dispatch({text: 'start', tabId: '81'}, null, null);
 
     sinon.assert.calledOnce(window.clearInterval);
     sinon.assert.calledOnce(window.countdown);
   });
 
-  it('should handle stop command', function () {
+  it('should handle stop command', function() {
     chrome.runtime.onMessage.dispatch({text: 'stop', tabId: '81'}, null, null);
 
     sinon.assert.calledOnce(window.clearInterval);
   });
 
-  it('should save settings', function () {
+  it('should save settings', function() {
     window.isNumeric.restore();
 
     window.document.getElementById('settings-form').dispatchEvent(new window.Event('submit'));
@@ -136,7 +136,7 @@ describe('modal page with less than threshold tabs', function () {
     sinon.assert.calledTwice(window.clearInterval);
   });
 
-  it('should close modal when X is pressed', function () {
+  it('should close modal when X is pressed', function() {
 
     window.document.getElementById('modal-close-btn').firstChild.dispatchEvent(new window.Event('click'));
 
@@ -144,7 +144,7 @@ describe('modal page with less than threshold tabs', function () {
     sinon.assert.calledOnce(chrome.tabs.sendMessage);
   });
 
-  it('should clear alarm and timer if unpinned when togglePin is called', function () {
+  it('should clear alarm and timer if unpinned when togglePin is called', function() {
     window.togglePin.restore();
 
     window.togglePin(42);
@@ -153,7 +153,7 @@ describe('modal page with less than threshold tabs', function () {
     sinon.assert.calledOnce(window.clearInterval);
   });
 
-  it('should do nothing if pinned when togglePin is called', function () {
+  it('should do nothing if pinned when togglePin is called', function() {
     window.togglePin.restore();
 
     window.bg.tabs[42]['Pinned'] = true;
@@ -165,9 +165,9 @@ describe('modal page with less than threshold tabs', function () {
   });
 });
 
-describe('modal page with more than threshold tabs', function () {
+describe('modal page with more than threshold tabs', function() {
   
-  beforeEach(function (done) {
+  beforeEach(function(done) {
 
     aboveThresholdTabs = {
       42: { 
@@ -239,12 +239,12 @@ describe('modal page with more than threshold tabs', function () {
       scripts: [
         'src/modalFuncs.js'
       ],
-      created: function (errors, wnd) {
+      created: function(errors, wnd) {
         // attach `chrome` to window
         wnd.chrome = chrome;
         wnd.console = console;
       },
-      done: function (errors, wnd) {
+      done: function(errors, wnd) {
         if (errors) {
           console.log(errors);
           done(true);
@@ -266,18 +266,18 @@ describe('modal page with more than threshold tabs', function () {
     });
   });
 
-  afterEach(function () {
+  afterEach(function() {
     chrome.reset();
     window.close();
   });
 
-  it('should get background page and create table on start-up', function () {
+  it('should get background page and create table on start-up', function() {
     sinon.assert.calledOnce(chrome.runtime.getBackgroundPage);
     sinon.assert.callCount(window.countdown, 6);
     assert.equal(window.document.getElementById('tabs-table').rows.length, 6);
   });
 
-  it('should handle addTab command', function () {
+  it('should handle addTab command', function() {
     window.bg.tabs['80'] = { 
       Tab: { 
         favIconUrl: 'https://www.google.ru/favicon.ico',
@@ -292,7 +292,7 @@ describe('modal page with more than threshold tabs', function () {
     assert.equal(window.document.getElementById('tabs-table').rows.length, 7);
   });
 
-  it('should save settings', function () {
+  it('should save settings', function() {
     window.isNumeric.restore();
 
     window.document.getElementById('settings-form').dispatchEvent(new window.Event('submit'));
@@ -304,7 +304,7 @@ describe('modal page with more than threshold tabs', function () {
     sinon.assert.callCount(window.countdown, 12);
   });
 
-  it('should clear alarm and timer if unpinned when togglePin is called', function () {
+  it('should clear alarm and timer if unpinned when togglePin is called', function() {
     window.togglePin.restore();
 
     window.togglePin(42);
@@ -313,7 +313,7 @@ describe('modal page with more than threshold tabs', function () {
     sinon.assert.calledOnce(window.clearInterval);
   });
 
-  it('should do nothing if pinned when togglePin is called', function () {
+  it('should do nothing if pinned when togglePin is called', function() {
     window.togglePin.restore();
 
     window.bg.tabs[42]['Pinned'] = true;

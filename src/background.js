@@ -21,11 +21,12 @@ because they need to persist over multiple chrome sessions.
 */
 
 var tabs = {};
-var timeLimit;  // in minutes
-var threshold;
-var numTabs = 0;  // Need an in-memory count of the number of tabs because when a lot of alarms go off at the same time,
-									// we need this to make sure we don't delete past the threshold (because of stacked alarm listeners)
+var timeLimit;  // How long to wait after the latest activation before closing a tab
+var threshold;  // We only start autoclosing if there are more than the threshold number of tabs open
+var numTabs = 0;  // Need an in-memory count of the # of tabs because when many alarms go off together, we need to make sure
+									// we don't delete past the threshold (because multiple alarms can sound before the removal happens)
 
+// Get timeLimit and threshold when chrome starts
 chrome.storage.sync.get(["timeLimit", "threshold"], function(settings) {
   if (!("timeLimit" in settings && "threshold" in settings)) {
     chrome.storage.sync.set({
@@ -65,15 +66,15 @@ chrome.tabs.onReplaced.addListener(function(addedTabId, removedTabId) {
 chrome.tabs.onActivated.addListener(function(activeInfo) {
 	var tabId = activeInfo["tabId"];
 
-	// onActivated might be called before onUpdated, so if the tab doesn't   
-	// exist in the tabs global object yet, we don't need to do anything
+	// onActivated might be called before onUpdated (when the tab is first created), 
+	// so if the tab doesn't exist in the tabs global object yet, don't do anything
 	// We also don't need to do anything if we're below the threshold
 	if (tabs[tabId] && !tabs[tabId]["Pinned"] && Object.keys(tabs).length > threshold) {
 		
 		tabs[tabId]["Date"] = Date.now();
 
 		chrome.runtime.sendMessage({text: "start", tabId: tabId}, function(response) {
-			console.log("got start in onActivated response");
+			console.log("got start response in onActivated");
 		});
 
 		// New alarm automatically clears the previous one
@@ -97,7 +98,7 @@ chrome.tabs.onRemoved.addListener(function(tabId, tab) {
 
 		// Stop autoclose whenever we drop to the threshold
 		if (numTabs == threshold) {
-			stopAutoClose();
+			stopAutoclose();
 		}
 	});
 });
@@ -115,87 +116,16 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
 	}
 });
 
-// /**
-//  * Adds a new tab to the tab dictionary (or update a tab, doesn't have to just be add)
-//  *
-//  * @param {number} tabId - The Id of the new tab
-//  * @param {object} tab - The actual tab object
-//  * @params {number} timeLimit - How long to store tab for
-//  */
-// function addOrUpdateTab(tabId, tab, timeLimit) {
-// 	if (!(tabId in tabs)) {
-// 		// Add a tab
-// 		tabs[tabId] = {};
-// 		tabs[tabId]["Tab"] = tab;
-// 		tabs[tabId]["Pinned"] = false;
+// Check if computer goes to sleep/wakes up
+chrome.idle.onStateChanged.addListener(function(idleState) {
+	console.log("state changed")
+	if (idleState == 'active') {
+		unpauseAutoclose();
+	} else if (idleState == 'locked') {
+		stopAutoclose();
+	}
+});
 
-// 		numTabs = Object.keys(tabs).length;
-
-// 		if (numTabs == threshold + 1) {
-// 			// Start autoclose if we pass threshold
-// 			startAutoClose();
-// 		} else if (numTabs > threshold + 1) {
-// 			tabs[tabId]["Date"] = Date.now();
-// 			chrome.alarms.create(tabId.toString(), {delayInMinutes: timeLimit});
-// 		}
-
-// 		// Have to populate tabs[tabId] fields before updating UI
-// 		chrome.runtime.sendMessage({text: "addTab", tabId: tabId}, function(response) {
-// 			console.log("got addTab response");
-// 		});
-// 	} else {
-// 		// Update an existing tab
-
-// 		// TODO: Update UI
-// 		tabs[tabId]["Tab"] = tab;
-// 	}
-// }
-
-// /**
-//  * If we go above tab threshold, enable auto-close and reset previous timers if they exist
-//  */
-// function startAutoClose() {
-// 	console.log("Auto close started");
-// 	for (var tabId in tabs) {
-// 		if (!tabs[tabId]["Pinned"]) {  // Don't start auto-close if the tab is pinned
-
-// 			tabs[tabId]["Date"] = Date.now();
-
-// 			chrome.runtime.sendMessage({text: "start", tabId: tabId}, function(response) {
-// 				console.log("got startAutoClose response");
-// 			});
-
-// 			chrome.alarms.create(tabId.toString(), {delayInMinutes: timeLimit});
-// 		}
-// 	}
-// }
-
-// /**
-//  * If we go below tab threshold, disable auto-close
-//  */
-// function stopAutoClose() {
-// 	console.log("Auto close stopped");
-// 	chrome.alarms.clearAll();
-// 	for (var tabId in tabs) {
-// 		if (!tabs[tabId]["Pinned"]) {  // Don't stop auto-close if the tab is pinned
-// 			chrome.runtime.sendMessage({text: "stop", tabId: tabId}, function(response) {
-// 				console.log("got stopAutoClose response");
-// 			});
-// 		}
-// 	}
-// }
-
-// /**
-//  * Animate favicon if a tab is about to be deleted
-//  */
-// function changeFavicon() {
-// 	var link = document.querySelector("link[rel~='icon']");
-// 	if (!link) {
-// 	  link = document.createElement("link");
-// 	  link.setAttribute("rel", "icon");
-// 	  document.head.appendChild(link);
-// 	}
-// }
 
 // Toggle modal
 chrome.browserAction.onClicked.addListener(function(tab) {

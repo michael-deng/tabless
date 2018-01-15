@@ -1,5 +1,7 @@
 Testing:
 
+npm run test
+
 What we use:
 - sinon-chrome (https://github.com/acvetkov/sinon-chrome)
 - mocha

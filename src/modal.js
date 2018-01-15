@@ -21,6 +21,8 @@ var modalTabs = {};
 chrome.runtime.getBackgroundPage(function(background) {
   bg = background;
   var table = document.getElementById('tabs-table');
+
+  // Populate the tabs table row by row
   for (key in bg.tabs) {
     var tab = bg.tabs[key]["Tab"];
     var date = bg.tabs[key]["Date"];
@@ -33,6 +35,7 @@ chrome.runtime.getBackgroundPage(function(background) {
 
     modalTabs[key] = {};
 
+    // Set the favicon
     var favIconUrl = tab.favIconUrl;
     if (favIconUrl) {
       if (favIconUrl.startsWith('chrome://') || favIconUrl.startsWith('chrome-extension://')) {
@@ -45,10 +48,12 @@ chrome.runtime.getBackgroundPage(function(background) {
       cell1.innerHTML = "<img class=\"favicon\" src=\"default_favicon.png\">";
     }
 
+    // Set the tab title
     cell2.innerHTML = "<div class=\"tab-title\">" + tab.title + "</div><div class=\"tab-timer\"></div>";
     var timer = cell2.getElementsByClassName("tab-timer")[0];
     modalTabs[key]["Timer"] = timer;
 
+    // Set the tab pin icon
     cell3.innerHTML = "<div class=\"tab-pin\"><img title=\"Pin this tab\" src=\"tabless_pin_red.png\"><img title=\"Pin this tab\" src=\"tabless_pin_grey.png\"></div>";
 
     if (!pinned) {
@@ -147,8 +152,9 @@ chrome.runtime.getBackgroundPage(function(background) {
       pinContainer.addEventListener("click", function() {
         togglePin(tabId, bg);
       });
+    }
 
-    } else if (msg.text == "removeTab") {
+    else if (msg.text == "removeTab") {
       // Remove row
       var tabId = msg.tabId;
       var row = modalTabs[tabId]["Timer"].parentNode.parentNode;
@@ -159,19 +165,18 @@ chrome.runtime.getBackgroundPage(function(background) {
 
       // Remove tabTimer entry
       delete modalTabs[tabId];
+    }
 
-    } else if (msg.text == "start") {
+    else if (msg.text == "start") {
       var tabId = msg.tabId;
 
-      // Need this check in case we add a tab which triggers a startAutoClose call, but the tab isn't created
-      // in the UI yet, so it doesn't have modalTabs[tabId]["Timer"]
-      if (modalTabs[tabId]) {
-        clearInterval(modalTabs[tabId]["TimerId"]);  // Clear previous timer if it exists
-        modalTabs[tabId]["TimerId"] = countdown(bg.tabs[tabId]["Date"], modalTabs[tabId]["Timer"], bg.timeLimit);
-      }
+      clearInterval(modalTabs[tabId]["TimerId"]);  // Clear previous timer if it exists
+      modalTabs[tabId]["TimerId"] = countdown(bg.tabs[tabId]["Date"], modalTabs[tabId]["Timer"], bg.timeLimit);
+    }
 
-    } else if (msg.text == "stop") {
+    else if (msg.text == "stop") {
       var tabId = msg.tabId;
+
       clearInterval(modalTabs[tabId]["TimerId"]);
       modalTabs[tabId]["Timer"].innerHTML = "Below threshold";
     }

@@ -88,18 +88,6 @@ chrome.runtime.getBackgroundPage(function(background) {
   document.getElementById("time-limit-minutes").value = durationMinutes;
   document.getElementById("min-open-tabs").value = bg.threshold;
 
-  // // Populate "Settings" tab with information from storage
-  // chrome.storage.sync.get(["duration", "threshold"], function(settings) {
-  //   var duration = settings["duration"];
-  //   durationHours = Math.floor(duration/60);
-  //   durationMinutes = duration % 60;
-  //   threshold = settings["threshold"];
-
-  //   document.getElementById("time-limit-hours").value = durationHours;
-  //   document.getElementById("time-limit-minutes").value = durationMinutes;
-  //   document.getElementById("min-open-tabs").value = threshold;
-  // });
-
   // Listen to commands from the background page
   chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
     if (msg.text == "addTab") {
@@ -172,11 +160,22 @@ chrome.runtime.getBackgroundPage(function(background) {
       modalTabs[tabId]["TimerId"] = countdown(bg.tabs[tabId]["End"], modalTabs[tabId]["Timer"]);
     }
 
-    else if (msg.text == "stop") {
-      var tabId = msg.tabId;
+    else if (msg.text == "startAll") {
+      for (tabId in bg.tabs) {
+        if (!bg.tabs[tabId]["Pinned"]) {
+          clearInterval(modalTabs[tabId]["TimerId"]);  // Clear previous timer if it exists
+          modalTabs[tabId]["TimerId"] = countdown(bg.tabs[tabId]["End"], modalTabs[tabId]["Timer"]);
+        }
+      }
+    }
 
-      clearInterval(modalTabs[tabId]["TimerId"]);
-      modalTabs[tabId]["Timer"].innerHTML = "Below threshold";
+    else if (msg.text == "stopAll") {
+      for (tabId in bg.tabs) {
+        if (!bg.tabs[tabId]["Pinned"]) {
+          clearInterval(modalTabs[tabId]["TimerId"]);
+          modalTabs[tabId]["Timer"].innerHTML = "Below threshold";
+        }
+      }
     }
   });
 
@@ -322,8 +321,7 @@ chrome.runtime.getBackgroundPage(function(background) {
           bg.tabs[key]["End"] = end;
           chrome.alarms.create(key.toString(), {when: end});
           clearInterval(modalTabs[key]["TimerId"]);
-          var timer = modalTabs[key]["Timer"];
-          modalTabs[key]["TimerId"] = countdown(end, timer);  // Update the timers UI in the "Tabs" tab
+          modalTabs[key]["TimerId"] = countdown(end, modalTabs[key]["Timer"]);  // Update the timers UI in the "Tabs" tab
         }
       }
     } else {
@@ -333,8 +331,7 @@ chrome.runtime.getBackgroundPage(function(background) {
       for (key in bg.tabs) {
         if (!bg.tabs[key]["Pinned"]) {
           clearInterval(modalTabs[key]["TimerId"]);
-          var timer = modalTabs[key]["Timer"];
-          timer.innerHTML = "Below threshold";  // Update the timers UI in the "Tabs" tab
+          modalTabs[key]["Timer"].innerHTML = "Below threshold";  // Update the timers UI in the "Tabs" tab
         }
       }
     }

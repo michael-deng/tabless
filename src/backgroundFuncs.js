@@ -56,13 +56,13 @@ function startAutoclose() {
 			tabs[tabId]["End"] = end;
 			console.log(tabs[tabId]["End"]);
 
-			chrome.runtime.sendMessage({text: "start", tabId: tabId}, function(response) {
-				console.log("got start response in startAutoclose");
-			});
-
 			chrome.alarms.create(tabId.toString(), {when: end});
 		}
 	}
+
+	chrome.runtime.sendMessage({text: "startAll"}, function(response) {
+		console.log("got startAll response in startAutoclose");
+	});
 }
 
 /**
@@ -92,15 +92,18 @@ function unpauseAutoclose() {
 function stopAutoclose() {
 	console.log("stopAutoclose started");
 	chrome.alarms.clearAll();
-	for (var tabId in tabs) {
+	// for (var tabId in tabs) {
 
-		// Don't stop auto-close if the tab is pinned
-		if (!tabs[tabId]["Pinned"]) {
-			chrome.runtime.sendMessage({text: "stop", tabId: tabId}, function(response) {
-				console.log("got stopAutoclose response");
-			});
-		}
-	}
+	// 	// Don't stop auto-close if the tab is pinned
+	// 	if (!tabs[tabId]["Pinned"]) {
+	// 		chrome.runtime.sendMessage({text: "stop", tabId: tabId}, function(response) {
+	// 			console.log("got stopAutoclose response");
+	// 		});
+	// 	}
+	// }
+	chrome.runtime.sendMessage({text: "stopAll"}, function(response) {
+		console.log("got stopAll response in stopAutoClose");
+	});
 }
 
 /**
@@ -115,10 +118,10 @@ function changeFavicon() {
 	}
 }
 
-if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-	module.exports.addOrUpdateTab = addOrUpdateTab;
-} else {
-	window.addOrUpdateTab = addOrUpdateTab;
-}
+// if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+// 	module.exports.addOrUpdateTab = addOrUpdateTab;
+// } else {
+// 	window.addOrUpdateTab = addOrUpdateTab;
+// }
 
 // module.exports.addOrUpdateTab = addOrUpdateTab;

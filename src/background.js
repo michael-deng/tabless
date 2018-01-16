@@ -13,7 +13,6 @@ The two variables stored in chrome storage are duration and threshold
 because they need to persist over multiple chrome sessions.
 */
 
-
 /*
 3. Add tab to modal visually if the modal is open
 4. Don't start/stop auto-close if they're already started/stopped
@@ -73,34 +72,34 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 		
 		tabs[tabId]["End"] = Date.now() + duration;
 
+		// New alarm automatically clears the previous one
+		chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
+
 		chrome.runtime.sendMessage({text: "start", tabId: tabId}, function(response) {
 			console.log("got start response in onActivated");
 		});
-
-		// New alarm automatically clears the previous one
-		chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
 	}
 });
 
 // This is called whenever a tab is removed manually or via alarm
 chrome.tabs.onRemoved.addListener(function(tabId, tab) {
 
+	chrome.alarms.clear(tabId.toString());
+
 	// Have to delete UI element first before deleting tabs[tabId],
 	// so we put the data-deletion code in the callback function
 	chrome.runtime.sendMessage({text: "removeTab", tabId: tabId}, function(response) {
-
 		console.log("got removeTab response");
-
-		chrome.alarms.clear(tabId.toString());
-		delete tabs[tabId];
-
-		numTabs = Object.keys(tabs).length;
-
-		// Stop autoclose whenever we drop to the threshold
-		if (numTabs == threshold) {
-			stopAutoclose();
-		}
 	});
+
+	delete tabs[tabId];
+
+	numTabs = Object.keys(tabs).length;
+
+	// Stop autoclose whenever we drop to the threshold
+	if (numTabs == threshold) {
+		stopAutoclose();
+	}
 });
 
 // This is called whenever an alarm sounds
@@ -139,21 +138,21 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 
 			// If we get a response, it means the content script is running and received our message
 			if (response) {
-	      // console.log("Already there");
-	    }
+				// console.log("Already there");
+			}
 
-	    // No response, inject jquery and content script, then resend message and insert css
-	    else {
-	      // console.log("Not there, inject content script");
-	      chrome.tabs.executeScript(tab.id, {file: "jquery.min.js"}, function() {
-		      chrome.tabs.executeScript(tab.id, {file: "tabless-extension-content-script.js"}, function() {
-		      	chrome.tabs.sendMessage(tab.id, {text: "toggle"});
-		      	chrome.tabs.insertCSS(tab.id, {file: "tabless-extension-iframe-styles.css"}, function() {
-		      		// console.log('CSS inserted');
-		      	});
-		      });
-		    });
-	    }
+			// No response, inject jquery and content script, then resend message and insert css
+			else {
+				// console.log("Not there, inject content script");
+				chrome.tabs.executeScript(tab.id, {file: "jquery.min.js"}, function() {
+					chrome.tabs.executeScript(tab.id, {file: "tabless-extension-content-script.js"}, function() {
+						chrome.tabs.sendMessage(tab.id, {text: "toggle"});
+						chrome.tabs.insertCSS(tab.id, {file: "tabless-extension-iframe-styles.css"}, function() {
+							// console.log('CSS inserted');
+						});
+					});
+				});
+			}
 		});
 	}
 });

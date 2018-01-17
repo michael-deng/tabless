@@ -125,7 +125,7 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
 // 	}
 // });
 
-
+var injecting = false;
 // Toggle modal
 chrome.browserAction.onClicked.addListener(function(tab) {
 
@@ -138,20 +138,27 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 
 			// If we get a response, it means the content script is running and received our message
 			if (response) {
-				// console.log("Already there");
+				console.log("Content script already there");
 			}
 
 			// No response, inject jquery and content script, then resend message and insert css
 			else {
-				// console.log("Not there, inject content script");
-				chrome.tabs.executeScript(tab.id, {file: "jquery.min.js"}, function() {
-					chrome.tabs.executeScript(tab.id, {file: "tabless-extension-content-script.js"}, function() {
-						chrome.tabs.sendMessage(tab.id, {text: "toggle"});
-						chrome.tabs.insertCSS(tab.id, {file: "tabless-extension-iframe-styles.css"}, function() {
-							// console.log('CSS inserted');
+				if (!injecting) {
+					console.log("Content script not there, inject jquery, content script, and css");
+					injecting = true;
+					chrome.tabs.executeScript(tab.id, {file: "jquery.min.js"}, function() {
+						chrome.tabs.executeScript(tab.id, {file: "tabless-extension-content-script.js", runAt: "document_start"}, function() {
+							console.log("injected content script");
+							chrome.tabs.sendMessage(tab.id, {text: "toggle"});
+							chrome.tabs.insertCSS(tab.id, {file: "tabless-extension-iframe-styles.css"}, function() {
+								// console.log('CSS inserted');
+							});
+							injecting = false;
 						});
 					});
-				});
+				} else {
+					console.log("Already injecting");
+				}
 			}
 		});
 	}

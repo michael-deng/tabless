@@ -75,9 +75,7 @@ function unpauseAutoclose() {
 
 		// Don't unpause auto-close if the tab is pinned
 		if (!tabs[tabId]["Pinned"]) {
-
 			tabs[tabId]["End"] = tabs[tabId]["End"] + difference;
-
 			chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
 		}
 	}

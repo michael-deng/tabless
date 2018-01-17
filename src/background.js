@@ -122,7 +122,7 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
 // Check if computer goes to sleep/wakes up
 chrome.idle.onStateChanged.addListener(function(idleState) {
 	console.log("state changed")
-	if (idleState == 'active' && locked) {
+	if (idleState == 'active' && locked && Object.keys(tabs).length > threshold) {
 		unpauseAutoclose();
 		locked = false;
 	} else if (idleState == 'locked') {

@@ -70,20 +70,21 @@ function startAutoclose() {
  */
 function unpauseAutoclose() {
 	console.log("unpauseAutoclose started");
+	var difference = Date.now() - stopDate;
 	for (var tabId in tabs) {
 
 		// Don't unpause auto-close if the tab is pinned
 		if (!tabs[tabId]["Pinned"]) {
 
-			chrome.runtime.sendMessage({text: "start", tabId: tabId}, function(response) {
-				console.log("got startAutoclose response");
-			});
+			tabs[tabId]["End"] = tabs[tabId]["End"] + difference;
 
-			difference = Math.floor((Date.now() - tabs[tabId]["Date"]) / 60);
-
-			chrome.alarms.create(tabId.toString(), {delayInMinutes: difference});
+			chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
 		}
 	}
+
+	chrome.runtime.sendMessage({text: "startAll"}, function(response) {
+		console.log("got startAll response in unpauseAutoclose");
+	});
 }
 
 /**
@@ -101,6 +102,8 @@ function stopAutoclose() {
 	// 		});
 	// 	}
 	// }
+	stopDate = Date.now();
+
 	chrome.runtime.sendMessage({text: "stopAll"}, function(response) {
 		console.log("got stopAll response in stopAutoClose");
 	});

@@ -161,7 +161,7 @@ chrome.runtime.getBackgroundPage(function(background) {
     }
 
     else if (msg.text == "startAll") {
-      for (tabId in bg.tabs) {
+      for (tabId in modalTabs) {
         if (!bg.tabs[tabId]["Pinned"]) {
           clearInterval(modalTabs[tabId]["TimerId"]);  // Clear previous timer if it exists
           modalTabs[tabId]["TimerId"] = countdown(bg.tabs[tabId]["End"], modalTabs[tabId]["Timer"]);
@@ -170,7 +170,7 @@ chrome.runtime.getBackgroundPage(function(background) {
     }
 
     else if (msg.text == "stopAll") {
-      for (tabId in bg.tabs) {
+      for (tabId in modalTabs) {
         if (!bg.tabs[tabId]["Pinned"]) {
           clearInterval(modalTabs[tabId]["TimerId"]);
           modalTabs[tabId]["Timer"].innerHTML = "Below threshold";

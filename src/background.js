@@ -24,6 +24,10 @@ var duration;  // How long to wait after the latest activation before closing a 
 var threshold;  // We only start autoclosing if there are more than the threshold number of tabs open
 var numTabs = 0;  // Need an in-memory count of the # of tabs because when many alarms go off together, we need to make sure
 				  // we don't delete past the threshold (because multiple alarms can sound before the removal happens)
+var stopDate;  // The date when stopAutoClose() is last called, so when we call unpauseAutoclose(), 
+			   // we can calculate new end dates
+var locked = false;  // We use this locked variable to ensure we only call unpauseAutoclose 
+					 // when the idleState changes from locked to active, not idle to active
 
 // Get duration and threshold when chrome starts
 chrome.storage.sync.get(["duration", "threshold"], function(settings) {
@@ -115,17 +119,20 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
 	}
 });
 
-// // Check if computer goes to sleep/wakes up
-// chrome.idle.onStateChanged.addListener(function(idleState) {
-// 	console.log("state changed")
-// 	if (idleState == 'active') {
-// 		unpauseAutoclose();
-// 	} else if (idleState == 'locked') {
-// 		stopAutoclose();
-// 	}
-// });
+// Check if computer goes to sleep/wakes up
+chrome.idle.onStateChanged.addListener(function(idleState) {
+	console.log("state changed")
+	if (idleState == 'active' && locked) {
+		unpauseAutoclose();
+		locked = false;
+	} else if (idleState == 'locked') {
+		stopAutoclose();
+		locked = true;
+	}
+});
 
 var injecting = false;
+
 // Toggle modal
 chrome.browserAction.onClicked.addListener(function(tab) {
 

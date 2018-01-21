@@ -6,127 +6,129 @@
  * @params {number} duration - How long to store tab for (milliseconds)
  */
 function addOrUpdateTab(tabId, tab, duration) {
-	if (!(tabId in tabs)) {
-		console.log("addOrUpdateTab started")
-		// Add a tab
-		if (numTabs < threshold) {
-			tabs[tabId] = {};
-			tabs[tabId]["Tab"] = tab;
-			tabs[tabId]["Pinned"] = false;
-		} else if (numTabs == threshold) {
-			startAutoclose();
-			tabs[tabId] = {};
-			tabs[tabId]["Tab"] = tab;
-			tabs[tabId]["Pinned"] = false;
-			tabs[tabId]["End"] = Date.now() + duration;
-			chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
-		} else {
-			tabs[tabId] = {};
-			tabs[tabId]["Tab"] = tab;
-			tabs[tabId]["Pinned"] = false;
-			tabs[tabId]["End"] = Date.now() + duration;
-			chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
-		}
+    if (!(tabId in tabs)) {
+        console.log("addOrUpdateTab started")
+        // Add a tab
+        if (numTabs < threshold) {
+            tabs[tabId] = {};
+            tabs[tabId]["Tab"] = tab;
+            tabs[tabId]["Pinned"] = false;
+        } else if (numTabs == threshold) {
+            startAutoclose();
+            tabs[tabId] = {};
+            tabs[tabId]["Tab"] = tab;
+            tabs[tabId]["Pinned"] = false;
+            tabs[tabId]["End"] = Date.now() + duration;
+            chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
+        } else {
+            tabs[tabId] = {};
+            tabs[tabId]["Tab"] = tab;
+            tabs[tabId]["Pinned"] = false;
+            tabs[tabId]["End"] = Date.now() + duration;
+            chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
+        }
 
-		numTabs = Object.keys(tabs).length;
+        numTabs = Object.keys(tabs).length;
 
-		// Have to populate tabs[tabId] fields before updating UI
-		chrome.runtime.sendMessage({text: "addTab", tabId: tabId}, function(response) {
-			console.log("got addTab response");
-		});
-	} else {
-		// Update an existing tab
+        // Have to populate tabs[tabId] fields before updating UI
+        chrome.runtime.sendMessage({text: "addTab", tabId: tabId}, function(response) {
+            console.log("got addTab response");
+        });
+    } else {
+        // Update an existing tab
+        tabs[tabId]["Tab"] = tab;
 
-		// TODO: Update UI
-		tabs[tabId]["Tab"] = tab;
-	}
+        chrome.runtime.sendMessage({text: "updateTab", tabId: tabId}, function(response) {
+            console.log("got updateTab response");
+        });
+    }
 }
 
 /**
  * If we go above tab threshold, enable auto-close and reset previous timers
  */
 function startAutoclose() {
-	console.log("Autoclose started");
-	var end = Date.now() + duration;
-	for (var tabId in tabs) {
+    console.log("Autoclose started");
+    var end = Date.now() + duration;
+    for (var tabId in tabs) {
 
-		// Don't start auto-close if the tab is pinned
-		if (!tabs[tabId]["Pinned"]) {
+        // Don't start auto-close if the tab is pinned
+        if (!tabs[tabId]["Pinned"]) {
 
-			tabs[tabId]["End"] = end;
-			console.log(tabs[tabId]["End"]);
+            tabs[tabId]["End"] = end;
+            console.log(tabs[tabId]["End"]);
 
-			chrome.alarms.create(tabId.toString(), {when: end});
-		}
-	}
+            chrome.alarms.create(tabId.toString(), {when: end});
+        }
+    }
 
-	chrome.runtime.sendMessage({text: "startAll"}, function(response) {
-		console.log("got startAll response in startAutoclose");
-	});
+    chrome.runtime.sendMessage({text: "startAll"}, function(response) {
+        console.log("got startAll response in startAutoclose");
+    });
 }
 
 /**
  * If we unlock the computer, enable autoclose and restore existing timers
  */
 function unpauseAutoclose() {
-	console.log("unpauseAutoclose started");
-	var now = Date.now();
-	var difference = now - stopDate;
-	for (var tabId in tabs) {
+    console.log("unpauseAutoclose started");
+    var now = Date.now();
+    var difference = now - stopDate;
+    for (var tabId in tabs) {
 
-		// Don't unpause auto-close if the tab is pinned
-		if (!tabs[tabId]["Pinned"]) {
+        // Don't unpause auto-close if the tab is pinned
+        if (!tabs[tabId]["Pinned"]) {
 
-			// When unpausing a tab with less than 1 min left, set the alarm back to 1 min 
-			// because chrome API doesn't allow alarms of <1 min in prod
-			tabs[tabId]["End"] = Math.max(tabs[tabId]["End"] + difference, now + 60000);
-			chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
-		}
-	}
+            // When unpausing a tab with less than 1 min left, set the alarm back to 1 min 
+            // because chrome API doesn't allow alarms of <1 min in prod
+            tabs[tabId]["End"] = Math.max(tabs[tabId]["End"] + difference, now + 60000);
+            chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
+        }
+    }
 
-	chrome.runtime.sendMessage({text: "startAll"}, function(response) {
-		console.log("got startAll response in unpauseAutoclose");
-	});
+    chrome.runtime.sendMessage({text: "startAll"}, function(response) {
+        console.log("got startAll response in unpauseAutoclose");
+    });
 }
 
 /**
  * If we go below tab threshold or the computer locks, disable auto-close
  */
 function stopAutoclose() {
-	console.log("stopAutoclose started");
-	chrome.alarms.clearAll();
-	// for (var tabId in tabs) {
+    console.log("stopAutoclose started");
+    chrome.alarms.clearAll();
+    // for (var tabId in tabs) {
 
-	// 	// Don't stop auto-close if the tab is pinned
-	// 	if (!tabs[tabId]["Pinned"]) {
-	// 		chrome.runtime.sendMessage({text: "stop", tabId: tabId}, function(response) {
-	// 			console.log("got stopAutoclose response");
-	// 		});
-	// 	}
-	// }
-	stopDate = Date.now();
+    //  // Don't stop auto-close if the tab is pinned
+    //  if (!tabs[tabId]["Pinned"]) {
+    //      chrome.runtime.sendMessage({text: "stop", tabId: tabId}, function(response) {
+    //          console.log("got stopAutoclose response");
+    //      });
+    //  }
+    // }
+    stopDate = Date.now();
 
-	chrome.runtime.sendMessage({text: "stopAll"}, function(response) {
-		console.log("got stopAll response in stopAutoClose");
-	});
+    chrome.runtime.sendMessage({text: "stopAll"}, function(response) {
+        console.log("got stopAll response in stopAutoClose");
+    });
 }
 
 /**
  * Animate favicon if a tab is about to be deleted
  */
 function changeFavicon() {
-	var link = document.querySelector("link[rel~='icon']");
-	if (!link) {
-	  link = document.createElement("link");
-	  link.setAttribute("rel", "icon");
-	  document.head.appendChild(link);
-	}
+    var link = document.querySelector("link[rel~='icon']");
+    if (!link) {
+      link = document.createElement("link");
+      link.setAttribute("rel", "icon");
+      document.head.appendChild(link);
+    }
 }
 
 // if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-// 	module.exports.addOrUpdateTab = addOrUpdateTab;
+//  module.exports.addOrUpdateTab = addOrUpdateTab;
 // } else {
-// 	window.addOrUpdateTab = addOrUpdateTab;
+//  window.addOrUpdateTab = addOrUpdateTab;
 // }
 
 // module.exports.addOrUpdateTab = addOrUpdateTab;

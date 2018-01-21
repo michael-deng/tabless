@@ -77,7 +77,8 @@ function unpauseAutoclose() {
 		// Don't unpause auto-close if the tab is pinned
 		if (!tabs[tabId]["Pinned"]) {
 
-			// Alarms can't be set for less than 1 min
+			// When unpausing a tab with less than 1 min left, set the alarm back to 1 min 
+			// because chrome API doesn't allow alarms of <1 min in prod
 			tabs[tabId]["End"] = Math.max(tabs[tabId]["End"] + difference, now + 60000);
 			chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
 		}

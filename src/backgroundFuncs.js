@@ -70,12 +70,15 @@ function startAutoclose() {
  */
 function unpauseAutoclose() {
 	console.log("unpauseAutoclose started");
-	var difference = Date.now() - stopDate;
+	var now = Date.now();
+	var difference = now - stopDate;
 	for (var tabId in tabs) {
 
 		// Don't unpause auto-close if the tab is pinned
 		if (!tabs[tabId]["Pinned"]) {
-			tabs[tabId]["End"] = tabs[tabId]["End"] + difference;
+
+			// Alarms can't be set for less than 1 min
+			tabs[tabId]["End"] = Math.max(tabs[tabId]["End"] + difference, now + 60000);
 			chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
 		}
 	}

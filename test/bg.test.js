@@ -123,6 +123,7 @@ describe('background page', function() {
           // Set up spies before loading background.js
           sinon.stub(window, 'addOrUpdateTab');
           sinon.stub(window, 'startAutoclose');
+          sinon.stub(window, 'unpauseAutoclose');
           sinon.stub(window, 'stopAutoclose');
 
           const script = new vm.Script(fs.readFileSync('src/background.js'));
@@ -264,7 +265,18 @@ describe('background page', function() {
 
     window.startAutoclose();
 
-    sinon.assert.callCount(chrome.runtime.sendMessage, 2);
+    sinon.assert.calledOnce(chrome.runtime.sendMessage);
+    sinon.assert.calledTwice(chrome.alarms.create);
+  });
+
+  it('should create alarms when unpauseAutoclose is called', function() {
+    window.tabs = belowThresholdTabs;
+
+    window.unpauseAutoclose.restore();
+
+    window.unpauseAutoclose();
+
+    sinon.assert.calledOnce(chrome.runtime.sendMessage);
     sinon.assert.calledTwice(chrome.alarms.create);
   });
 
@@ -275,7 +287,7 @@ describe('background page', function() {
 
     window.stopAutoclose();
 
-    sinon.assert.callCount(chrome.runtime.sendMessage, 2);
+    sinon.assert.calledOnce(chrome.runtime.sendMessage);
     sinon.assert.calledOnce(chrome.alarms.clearAll);
   });
 });

@@ -120,10 +120,17 @@ describe('modal page with less than threshold tabs', function() {
     sinon.assert.calledOnce(window.countdown);
   });
 
-  it('should handle stop command', function() {
-    chrome.runtime.onMessage.dispatch({text: 'stop', tabId: '81'}, null, null);
+  it('should handle startAll command', function() {
+    chrome.runtime.onMessage.dispatch({text: 'startAll'}, null, null);
 
-    sinon.assert.calledOnce(window.clearInterval);
+    sinon.assert.calledTwice(window.clearInterval);
+    sinon.assert.calledTwice(window.countdown);
+  });
+
+  it('should handle stopAll command', function() {
+    chrome.runtime.onMessage.dispatch({text: 'stopAll'}, null, null);
+
+    sinon.assert.calledTwice(window.clearInterval);
   });
 
   it('should save settings', function() {

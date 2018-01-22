@@ -1,16 +1,16 @@
 #tabless-extension-modal {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  height: 600px;
-  width: 480px;
-  z-index: 2147483647;
-  overflow: hidden;
-  border-radius: 5px;
-  box-shadow: 0 0 30px rgba(0,0,0,0.3);
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    height: 600px;
+    width: 480px;
+    z-index: 2147483647;
+    overflow: hidden;
+    border-radius: 5px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.3);
 }
 
 #tabless-extension-modal iframe {
-	height: 100%;
-	width: 100%;
+    height: 100%;
+    width: 100%;
 }

@@ -17,7 +17,7 @@ body {
     height: 60px;
     width: 160px;
     line-height: 60px;
-    font-size: 1.2em;
+    font-size: 1.25em;
 }
 
 #title {
@@ -87,7 +87,20 @@ div.active {
 /* Tabs list */
 
 #tabs {
-    padding: 10px 20px;
+    padding: 15px 20px;
+}
+
+#power-btn {
+    float: left;
+    position: relative;
+    font-size: 1.2em;
+    left: calc(50% - 12px);
+    color: #888888;
+}
+
+#power-btn i {
+    cursor: pointer;
+    padding: 5px;
 }
 
 #pin-all, #unpin-all {

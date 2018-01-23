@@ -20,7 +20,15 @@ var modalTabs = {};
 
 chrome.runtime.getBackgroundPage(function(background) {
     bg = background;
-    var table = document.getElementById('tabs-table');
+
+    var power = document.getElementById("power-btn").firstChild;
+    if (bg.open) {
+        power.style.color = "#E71D36";
+    } else {
+        power.style.color = "#888888";
+    }
+
+    var table = document.getElementById("tabs-table");
 
     // Populate the tabs table row by row
     for (key in bg.tabs) {
@@ -57,18 +65,23 @@ chrome.runtime.getBackgroundPage(function(background) {
         // Set the tab pin icon
         cell3.innerHTML = "<div class=\"tab-pin\"><img title=\"Pin this tab\" src=\"tabless_pin_red.png\"><img title=\"Pin this tab\" src=\"tabless_pin_grey.png\"></div>";
 
-        if (!pinned) {
-            cell3.getElementsByTagName("img")[0].style.display = "none";
-            // cell3.innerHTML = "<img src=\"tabless_pin_red.png\">";
-            if (Object.keys(bg.tabs).length > bg.threshold) {
-                modalTabs[key]["TimerId"] = countdown(end, timer);
+        if (bg.open) {
+            if (!pinned) {
+                cell3.getElementsByTagName("img")[0].style.display = "none";
+                // cell3.innerHTML = "<img src=\"tabless_pin_red.png\">";
+                if (Object.keys(bg.tabs).length > bg.threshold) {
+                    modalTabs[key]["TimerId"] = countdown(end, timer);
+                } else {
+                    timer.innerHTML = "Below threshold";
+                }
             } else {
-                timer.innerHTML = "Below threshold";
+                cell3.getElementsByTagName("img")[1].style.display = "none";
+                // cell3.innerHTML = "<img src=\"tabless_pin_grey.png\">";
+                timer.innerHTML = "Pinned";
             }
         } else {
-            cell3.getElementsByTagName("img")[1].style.display = "none";
-            // cell3.innerHTML = "<img src=\"tabless_pin_grey.png\">";
-            timer.innerHTML = "Pinned";
+            cell3.getElementsByTagName("img")[0].style.display = "none";
+            timer.innerHTML = "Powered off";
         }
 
         var pinContainer = cell3.getElementsByTagName("div")[0];
@@ -126,10 +139,15 @@ chrome.runtime.getBackgroundPage(function(background) {
 
             cell3.getElementsByTagName("img")[0].style.display = "none";
             // cell3.innerHTML = "<img src=\"tabless_pin_red.png\">";
-            if (Object.keys(bg.tabs).length > bg.threshold) {
-                modalTabs[key]["TimerId"] = countdown(bg.tabs[key]["End"], timer);
+
+            if (bg.open) {
+                if (Object.keys(bg.tabs).length > bg.threshold) {
+                    modalTabs[key]["TimerId"] = countdown(bg.tabs[key]["End"], timer);
+                } else {
+                    timer.innerHTML = "Below threshold";
+                }
             } else {
-                timer.innerHTML = "Below threshold";       
+                timer.innerHTML = "Powered off";
             }
 
             var pinContainer = cell3.getElementsByTagName("div")[0];
@@ -323,7 +341,7 @@ chrome.runtime.getBackgroundPage(function(background) {
 
         chrome.storage.sync.set({
             "duration": bg.duration,
-            "threshold": threshold.value
+            "threshold": threshold
         }, function() {
             if (chrome.runtime.lastError) {
                 // Save failure
@@ -337,27 +355,29 @@ chrome.runtime.getBackgroundPage(function(background) {
             }
         });
 
-        if (Object.keys(bg.tabs).length > bg.threshold) {
-            // Update the timers of every tab
-            console.log("Start autoclose in settings");
-            chrome.alarms.clearAll();  // Might have to add callback in parameter
-            var end = Date.now() + bg.duration;
-            for (key in bg.tabs) {
-                if (!bg.tabs[key]["Pinned"]) {
-                    bg.tabs[key]["End"] = end;
-                    chrome.alarms.create(key.toString(), {when: end});
-                    clearInterval(modalTabs[key]["TimerId"]);
-                    modalTabs[key]["TimerId"] = countdown(end, modalTabs[key]["Timer"]);  // Update the timers UI in the "Tabs" tab
+        if (bg.open) {
+            if (Object.keys(bg.tabs).length > bg.threshold) {
+                // Update the timers of every tab
+                console.log("Start autoclose in settings");
+                chrome.alarms.clearAll();  // Might have to add callback in parameter
+                var end = Date.now() + bg.duration;
+                for (key in bg.tabs) {
+                    if (!bg.tabs[key]["Pinned"]) {
+                        bg.tabs[key]["End"] = end;
+                        chrome.alarms.create(key.toString(), {when: end});
+                        clearInterval(modalTabs[key]["TimerId"]);
+                        modalTabs[key]["TimerId"] = countdown(end, modalTabs[key]["Timer"]);  // Update the timers UI in the "Tabs" tab
+                    }
                 }
-            }
-        } else {
-            // Stop autoclose
-            console.log("Stop autoclose in settings");
-            chrome.alarms.clearAll();
-            for (key in bg.tabs) {
-                if (!bg.tabs[key]["Pinned"]) {
-                    clearInterval(modalTabs[key]["TimerId"]);
-                    modalTabs[key]["Timer"].innerHTML = "Below threshold";  // Update the timers UI in the "Tabs" tab
+            } else {
+                // Stop autoclose
+                console.log("Stop autoclose in settings");
+                chrome.alarms.clearAll();
+                for (key in bg.tabs) {
+                    if (!bg.tabs[key]["Pinned"]) {
+                        clearInterval(modalTabs[key]["TimerId"]);
+                        modalTabs[key]["Timer"].innerHTML = "Below threshold";  // Update the timers UI in the "Tabs" tab
+                    }
                 }
             }
         }
@@ -385,23 +405,19 @@ chrome.runtime.getBackgroundPage(function(background) {
         });
     });
 
+    // Listens for click event that turns on or off Tabless
+    document.getElementById("power-btn").firstChild.addEventListener("click", function() {
+        unpinAll();
+        toggleOpen();
+    });
+
     // Listens for click event that pins all websites
     document.getElementById("pin-all").addEventListener("click", function() {
-        var pins = document.getElementsByClassName('tab-pin');
-        for (key in bg.tabs) {
-            if (!bg.tabs[key]["Pinned"]) {
-                togglePin(key);
-            }
-        }
+        pinAll();
     });
 
     // Listens for click event that unpins all websites
     document.getElementById("unpin-all").addEventListener("click", function() {
-        var pins = document.getElementsByClassName('tab-pin');
-        for (key in bg.tabs) {
-            if (bg.tabs[key]["Pinned"]) {
-                togglePin(key);
-            }
-        }
+        unpinAll();
     });
 });

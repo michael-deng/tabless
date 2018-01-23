@@ -16,8 +16,8 @@ function toggleOpen() {
             } else {
                 bg.open = false;
                 power.style.color = "#888888";
+                chrome.alarms.clearAll();
                 for (tabId in bg.tabs) {
-                    chrome.alarms.clear(tabId.toString());
                     clearInterval(modalTabs[tabId]["TimerId"]);
                     modalTabs[tabId]["Timer"].innerHTML = "Powered off";
                 }
@@ -35,10 +35,11 @@ function toggleOpen() {
                 bg.open = true;
                 power.style.color = "#E71D36";
                 if (Object.keys(bg.tabs).length > bg.threshold) {
+                    var end = Date.now() + bg.duration;
                     for (tabId in bg.tabs) {
-                        bg.tabs[tabId]["End"] = Date.now() + bg.duration;
-                        chrome.alarms.create(tabId.toString(), {when: bg.tabs[tabId]["End"]});
-                        modalTabs[tabId]["TimerId"] = countdown(bg.tabs[tabId]["End"], modalTabs[tabId]["Timer"]);
+                        bg.tabs[tabId]["End"] = end;
+                        chrome.alarms.create(tabId.toString(), {when: end});
+                        modalTabs[tabId]["TimerId"] = countdown(end, modalTabs[tabId]["Timer"]);
                     }
                 } else {
                     for (tabId in bg.tabs) {

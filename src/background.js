@@ -31,7 +31,7 @@ var locked = false;  // We use this locked variable to ensure we only call unpau
                      // when the idleState changes from locked to active, not idle to active
 
 // Get duration and threshold when chrome starts
-chrome.storage.sync.get(["on", "duration", "threshold"], function(settings) {
+chrome.storage.sync.get(["open", "duration", "threshold"], function(settings) {
     if (!("open" in settings && "duration" in settings && "threshold" in settings)) {
         chrome.storage.sync.set({
             "open": true,
@@ -42,7 +42,7 @@ chrome.storage.sync.get(["on", "duration", "threshold"], function(settings) {
         duration = 300000;
         threshold = 5;
     } else {
-        open = (settings["open"] == 'true');
+        open = (settings["open"] === 'true');
         duration = parseInt(settings["duration"]);
         threshold = parseInt(settings["threshold"]);
     }

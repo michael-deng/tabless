@@ -1,57 +1,4 @@
 /**
- * Open or close Tabless
- */
-function toggleOpen() {
-    console.log("toggleOpen called with initial bg.open set to " + bg.open);
-    var power = document.getElementById("power-btn").firstChild;
-
-    if (bg.open) {
-        chrome.storage.sync.set({
-            "open": false,
-        }, function() {
-            if (chrome.runtime.lastError) {
-                // Save failure
-                // submitIndicator.innerHTML = "We hit a snag trying to save your settings, please try again!";
-                return false;
-            } else {
-                bg.open = false;
-                power.style.color = "#888888";
-                chrome.alarms.clearAll();
-                for (tabId in bg.tabs) {
-                    clearInterval(modalTabs[tabId]["TimerId"]);
-                    modalTabs[tabId]["Timer"].innerHTML = "Powered off";
-                }
-            }
-        });
-    } else {
-        chrome.storage.sync.set({
-            "open": true,
-        }, function() {
-            if (chrome.runtime.lastError) {
-                // Save failure
-                // submitIndicator.innerHTML = "We hit a snag trying to save your settings, please try again!";
-                return false;
-            } else {
-                bg.open = true;
-                power.style.color = "#E71D36";
-                if (Object.keys(bg.tabs).length > bg.threshold) {
-                    var end = Date.now() + bg.duration;
-                    for (tabId in bg.tabs) {
-                        bg.tabs[tabId]["End"] = end;
-                        chrome.alarms.create(tabId.toString(), {when: end});
-                        modalTabs[tabId]["TimerId"] = countdown(end, modalTabs[tabId]["Timer"]);
-                    }
-                } else {
-                    for (tabId in bg.tabs) {
-                        modalTabs[tabId]["Timer"].innerHTML = "Below threshold";
-                    }
-                }
-            }
-        });
-    }
-}
-
-/**
  * Pin or unpin a tab
  *
  * @param {number} tabId - The Id of the tab we're pinning/unpinning
@@ -60,54 +7,30 @@ function togglePin(tabId) {
     var timer = modalTabs[tabId]["Timer"];
     var pinContainer = modalTabs[tabId]["Pin"];
 
-    if (bg.open) {
-        if (bg.tabs[tabId]["Pinned"] == true) {
-            // Unpin the tab
-            console.log("unpinning tab");
-            pinContainer.children[0].style.display = "none";
-            pinContainer.children[1].style.display = "initial";
-            bg.tabs[tabId]["Pinned"] = false;
-            if (Object.keys(bg.tabs).length > bg.threshold) { 
-                bg.tabs[tabId]["End"] = Date.now() + bg.duration;
-                chrome.alarms.create(tabId.toString(), {when: bg.tabs[tabId]["End"]});
-                modalTabs[tabId]["TimerId"] = countdown(bg.tabs[tabId]["End"], timer);
-            } else {
-                timer.innerHTML = "Below threshold";
-            }
+    if (bg.tabs[tabId]["Pinned"] == true) {
+        // Unpin the tab
+        console.log("unpinning tab");
+        pinContainer.children[0].style.display = "none";
+        pinContainer.children[1].style.display = "initial";
+        bg.tabs[tabId]["Pinned"] = false;
+        if (Object.keys(bg.tabs).length > bg.threshold) { 
+            bg.tabs[tabId]["End"] = Date.now() + bg.duration;
+            chrome.alarms.create(tabId.toString(), {when: bg.tabs[tabId]["End"]});
+            modalTabs[tabId]["TimerId"] = countdown(bg.tabs[tabId]["End"], timer);
         } else {
-            // Pin the tab
-            console.log("pinning tab");
-            pinContainer.children[0].style.display = "initial";
-            pinContainer.children[1].style.display = "none";
-            bg.tabs[tabId]["Pinned"] = true;
-            chrome.alarms.clear(tabId.toString());
-            clearInterval(modalTabs[tabId]["TimerId"]);
-            timer.innerHTML = "Pinned";
+            timer.innerHTML = "Below threshold";
         }
+    } else {
+        // Pin the tab
+        console.log("pinning tab");
+        pinContainer.children[0].style.display = "initial";
+        pinContainer.children[1].style.display = "none";
+        bg.tabs[tabId]["Pinned"] = true;
+        chrome.alarms.clear(tabId.toString());
+        clearInterval(modalTabs[tabId]["TimerId"]);
+        timer.innerHTML = "Pinned";
     }
 }
-
-/**
- * Pin all tabs
- */
- function pinAll() {
-    for (key in bg.tabs) {
-        if (!bg.tabs[key]["Pinned"]) {
-            togglePin(key);
-        }
-    }
-}
-
- /**
- * Unpin all tabs
- */
- function unpinAll() {
-    for (key in bg.tabs) {
-        if (bg.tabs[key]["Pinned"]) {
-            togglePin(key);
-        }
-    }
- }
 
 /**
  * Make element a countdown to end

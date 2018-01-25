@@ -20,7 +20,6 @@ because they need to persist over multiple chrome sessions.
 */
 
 var tabs = {};
-var open;  // Whether or not Tabless is turned on
 var duration;  // How long to wait after the latest activation before closing a tab (milliseconds)
 var threshold;  // We only start autoclosing if there are more than the threshold number of tabs open
 var numTabs = 0;  // Need an in-memory count of the # of tabs because when many alarms go off together, we need to make sure
@@ -31,18 +30,15 @@ var locked = false;  // We use this locked variable to ensure we only call unpau
                      // when the idleState changes from locked to active, not idle to active
 
 // Get duration and threshold when chrome starts
-chrome.storage.sync.get(["open", "duration", "threshold"], function(settings) {
-    if (!("open" in settings && "duration" in settings && "threshold" in settings)) {
+chrome.storage.sync.get(["duration", "threshold"], function(settings) {
+    if (!("duration" in settings && "threshold" in settings)) {
         chrome.storage.sync.set({
-            "open": true,
             "duration": 300000,
             "threshold": 5
         });
-        open = true;
         duration = 300000;
         threshold = 5;
     } else {
-        open = (settings["open"] === 'true');
         duration = parseInt(settings["duration"]);
         threshold = parseInt(settings["threshold"]);
     }
@@ -76,7 +72,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
     // onActivated might be called before onUpdated (when the tab is first created), 
     // so if the tab doesn't exist in the tabs global object yet, don't do anything
     // We also don't need to do anything if we're below the threshold
-    if (tabs[tabId] && !tabs[tabId]["Pinned"] && Object.keys(tabs).length > threshold && open) {
+    if (tabs[tabId] && !tabs[tabId]["Pinned"] && Object.keys(tabs).length > threshold) {
         
         tabs[tabId]["End"] = Date.now() + duration;
 

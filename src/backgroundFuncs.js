@@ -18,18 +18,14 @@ function addOrUpdateTab(tabId, tab, duration) {
             tabs[tabId] = {};
             tabs[tabId]["Tab"] = tab;
             tabs[tabId]["Pinned"] = false;
-            if (open) {
-                tabs[tabId]["End"] = Date.now() + duration;
-                chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
-            }
+            tabs[tabId]["End"] = Date.now() + duration;
+            chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
         } else {
             tabs[tabId] = {};
             tabs[tabId]["Tab"] = tab;
             tabs[tabId]["Pinned"] = false;
-            if (open) {
-                tabs[tabId]["End"] = Date.now() + duration;
-                chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
-            }
+            tabs[tabId]["End"] = Date.now() + duration;
+            chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
         }
 
         numTabs = Object.keys(tabs).length;
@@ -53,24 +49,22 @@ function addOrUpdateTab(tabId, tab, duration) {
  */
 function startAutoclose() {
     console.log("Autoclose started");
-    if (open) {
-        var end = Date.now() + duration;
-        for (var tabId in tabs) {
+    var end = Date.now() + duration;
+    for (var tabId in tabs) {
 
-            // Don't start auto-close if the tab is pinned
-            if (!tabs[tabId]["Pinned"]) {
+        // Don't start auto-close if the tab is pinned
+        if (!tabs[tabId]["Pinned"]) {
 
-                tabs[tabId]["End"] = end;
-                console.log(tabs[tabId]["End"]);
+            tabs[tabId]["End"] = end;
+            console.log(tabs[tabId]["End"]);
 
-                chrome.alarms.create(tabId.toString(), {when: end});
-            }
+            chrome.alarms.create(tabId.toString(), {when: end});
         }
-
-        chrome.runtime.sendMessage({text: "startAll"}, function(response) {
-            console.log("got startAll response in startAutoclose");
-        });
     }
+
+    chrome.runtime.sendMessage({text: "startAll"}, function(response) {
+        console.log("got startAll response in startAutoclose");
+    });
 }
 
 /**
@@ -78,25 +72,23 @@ function startAutoclose() {
  */
 function unpauseAutoclose() {
     console.log("unpauseAutoclose started");
-    if (open) {
-        var now = Date.now();
-        var difference = now - stopDate;
-        for (var tabId in tabs) {
+    var now = Date.now();
+    var difference = now - stopDate;
+    for (var tabId in tabs) {
 
-            // Don't unpause auto-close if the tab is pinned
-            if (!tabs[tabId]["Pinned"]) {
+        // Don't unpause auto-close if the tab is pinned
+        if (!tabs[tabId]["Pinned"]) {
 
-                // When unpausing a tab with less than 1 min left, set the alarm back to 1 min 
-                // because chrome API doesn't allow alarms of <1 min in prod
-                tabs[tabId]["End"] = Math.max(tabs[tabId]["End"] + difference, now + 60000);
-                chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
-            }
+            // When unpausing a tab with less than 1 min left, set the alarm back to 1 min 
+            // because chrome API doesn't allow alarms of <1 min in prod
+            tabs[tabId]["End"] = Math.max(tabs[tabId]["End"] + difference, now + 60000);
+            chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
         }
-
-        chrome.runtime.sendMessage({text: "startAll"}, function(response) {
-            console.log("got startAll response in unpauseAutoclose");
-        });
     }
+
+    chrome.runtime.sendMessage({text: "startAll"}, function(response) {
+        console.log("got startAll response in unpauseAutoclose");
+    });
 }
 
 /**
@@ -104,15 +96,21 @@ function unpauseAutoclose() {
  */
 function stopAutoclose() {
     console.log("stopAutoclose started");
-    if (open) {
-        chrome.alarms.clearAll();
+    chrome.alarms.clearAll();
+    // for (var tabId in tabs) {
 
-        stopDate = Date.now();
+    //  // Don't stop auto-close if the tab is pinned
+    //  if (!tabs[tabId]["Pinned"]) {
+    //      chrome.runtime.sendMessage({text: "stop", tabId: tabId}, function(response) {
+    //          console.log("got stopAutoclose response");
+    //      });
+    //  }
+    // }
+    stopDate = Date.now();
 
-        chrome.runtime.sendMessage({text: "stopAll"}, function(response) {
-            console.log("got stopAll response in stopAutoClose");
-        });
-    }
+    chrome.runtime.sendMessage({text: "stopAll"}, function(response) {
+        console.log("got stopAll response in stopAutoClose");
+    });
 }
 
 /**

@@ -36,7 +36,6 @@ describe('modal page with less than threshold tabs', function() {
         // Set up mocks
         chrome.runtime.getBackgroundPage.yields({
             tabs: belowThresholdTabs,
-            open: true,
             duration: '300000',
             threshold: '5'
         });
@@ -67,8 +66,6 @@ describe('modal page with less than threshold tabs', function() {
 
                     // Set up spies before loading modal.js
                     sinon.stub(window, 'togglePin');
-                    sinon.stub(window, 'pinAll');
-                    sinon.stub(window, 'unpinAll');
                     sinon.stub(window, 'countdown');
                     sinon.stub(window, 'setTimer');
                     sinon.stub(window, 'isNumeric');
@@ -239,7 +236,6 @@ describe('modal page with more than threshold tabs', function() {
         // Set up mocks
         chrome.runtime.getBackgroundPage.yields({
             tabs: aboveThresholdTabs,
-            open: true,
             duration: '300000',
             threshold: '5'
         });
@@ -270,8 +266,6 @@ describe('modal page with more than threshold tabs', function() {
 
                     // Set up spies before loading modal.js
                     sinon.stub(window, 'togglePin');
-                    sinon.stub(window, 'pinAll');
-                    sinon.stub(window, 'unpinAll');
                     sinon.stub(window, 'countdown');
                     sinon.stub(window, 'setTimer');
                     sinon.stub(window, 'isNumeric');
@@ -348,12 +342,19 @@ describe('modal page with more than threshold tabs', function() {
     it('should pin all tabs when the pin-all button is clicked', function() {
         window.document.getElementById('pin-all').dispatchEvent(new window.Event('click'));
 
-        sinon.assert.calledOnce(window.pinAll);
+        sinon.assert.callCount(window.togglePin, 6);
     });
 
     it('should unpin all tabs when the unpin-all button is clicked', function() {
+        window.bg.tabs[42]['Pinned'] = true;
+        window.bg.tabs[81]['Pinned'] = true;
+        window.bg.tabs[82]['Pinned'] = true;
+        window.bg.tabs[83]['Pinned'] = true;
+        window.bg.tabs[84]['Pinned'] = true;
+        window.bg.tabs[85]['Pinned'] = true;
+
         window.document.getElementById('unpin-all').dispatchEvent(new window.Event('click'));
 
-        sinon.assert.calledOnce(window.unpinAll);
+        sinon.assert.callCount(window.togglePin, 6);
     });
 });

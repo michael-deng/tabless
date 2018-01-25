@@ -298,8 +298,8 @@ chrome.runtime.getBackgroundPage(function(background) {
             return false;
         }
 
-        if (threshold.value > 100) {
-            thresholdError.innerHTML = "Minimum open tabs cannot be greater than 100";
+        if (threshold.value > 999) {
+            thresholdError.innerHTML = "Minimum open tabs cannot be greater than 999";
             threshold.focus();
             return false;
         }

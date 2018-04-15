@@ -6,8 +6,9 @@
  */
 function addTabRow(key, table) {
     var tab = bg.tabs[key]["Tab"];
-    var end = bg.tabs[key]["End"];
     var pinned = bg.tabs[key]["Pinned"];
+    var created = bg.tabs[key]["Created"];
+    var end = bg.tabs[key]["End"];
     var row = table.insertRow(-1);
 
     var cell1 = row.insertCell(0);
@@ -31,13 +32,33 @@ function addTabRow(key, table) {
     }
 
     // Set the tab title
-    cell2.innerHTML = "<div class=\"tab-title\">" + tab.title + "</div><div class=\"tab-timer\"></div>";
+    cell2.innerHTML = "<div class=\"tab-title\">" + tab.title + "</div><div class=\"tab-time-elapsed\"></div><div class=\"tab-timer\"></div>";
 
     // Set up the redirect link on the title
     var title = cell2.getElementsByTagName("div")[0];
     title.addEventListener("click", function() {
         activateTab(key);
     });
+
+    // Set the time elapsed
+    var timeElapsed = cell2.getElementsByClassName("tab-time-elapsed")[0];
+    var distance = Date.now() - created;
+
+    // Time calculations for days, hours, minutes and seconds
+    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    if (days == 0 && hours == 0 && minutes == 0) {
+        timeElapsed.innerHTML = "<1m ago &middot ";
+    } else if (days == 0 && hours == 0) {
+        timeElapsed.innerHTML = minutes + "m ago &middot ";
+    } else if (days == 0) {
+        timeElapsed.innerHTML = hours + "h ago &middot ";
+    } else {
+        timeElapsed.innerHTML = days + "d ago &middot ";
+    }
 
     // Set the timer
     var timer = cell2.getElementsByClassName("tab-timer")[0];

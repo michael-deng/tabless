@@ -7,24 +7,30 @@
  */
 function addOrUpdateTab(tabId, tab, duration) {
     if (!(tabId in tabs)) {
-        console.log("addOrUpdateTab started")
+        console.log("addOrUpdateTab started");
+
+        var now = Date.now();
+
         // Add a tab
         if (numTabs < threshold) {
             tabs[tabId] = {};
             tabs[tabId]["Tab"] = tab;
             tabs[tabId]["Pinned"] = false;
+            tabs[tabId]["Created"] = now;
         } else if (numTabs == threshold) {
             startAutoclose();
             tabs[tabId] = {};
             tabs[tabId]["Tab"] = tab;
             tabs[tabId]["Pinned"] = false;
-            tabs[tabId]["End"] = Date.now() + duration;
+            tabs[tabId]["Created"] = now;
+            tabs[tabId]["End"] = now + duration;
             chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
         } else {
             tabs[tabId] = {};
             tabs[tabId]["Tab"] = tab;
             tabs[tabId]["Pinned"] = false;
-            tabs[tabId]["End"] = Date.now() + duration;
+            tabs[tabId]["Created"] = now;
+            tabs[tabId]["End"] = now + duration;
             chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
         }
 

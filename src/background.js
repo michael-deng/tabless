@@ -4,8 +4,9 @@ The structure of the tabs dictionary, this keeps global state of all tabs:
 tabs = {
     tabId: {
         "Tab": object,
-        "End": object,
-        "Pinned": boolean
+        "Pinned": boolean,
+        "Created": object,
+        "End": object
     }
 }
 
@@ -19,7 +20,7 @@ because they need to persist over multiple chrome sessions.
 6. Don't allow multiple modals to be open at once
 */
 
-var tabs = {};
+var tabs = new Map();
 var duration;  // How long to wait after the latest activation before closing a tab (milliseconds)
 var threshold;  // We only start autoclosing if there are more than the threshold number of tabs open
 var numTabs = 0;  // Need an in-memory count of the # of tabs because when many alarms go off together, we need to make sure
@@ -63,6 +64,7 @@ chrome.tabs.onReplaced.addListener(function(addedTabId, removedTabId) {
     var tab = tabs[removedTabId];
     delete tabs[removedTabId];
     tabs[addedTabId] = tab;
+    tabs[addedTabId]["Created"] = Date.now();
 });
 
 // Reset alarm and timer if a tab is activated

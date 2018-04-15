@@ -148,6 +148,7 @@ div.active {
     margin-top: 3px;
     font-size: 0.75em;
     color: #888888;
+    cursor: default;
 }
 
 .tab-pin {

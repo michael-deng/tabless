@@ -16,7 +16,7 @@ modalTabs = {
 */
 
 var bg;  // The window of the background page
-var modalTabs = {};
+var modalTabs = new Map();
 
 chrome.runtime.getBackgroundPage(function(background) {
     bg = background;

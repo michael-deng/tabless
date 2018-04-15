@@ -17,9 +17,6 @@ function addTabRow(key, table) {
     modalTabs[key] = {};
     modalTabs[key]["Row"] = row;
 
-    // Use let to get a block-scoped id that can be passed to event listeners
-    let tabId = key;
-
     // Set the favicon
     var favIconUrl = tab.favIconUrl;
     if (favIconUrl) {
@@ -39,7 +36,7 @@ function addTabRow(key, table) {
     // Set up the redirect link on the title
     var title = cell2.getElementsByTagName("div")[0];
     title.addEventListener("click", function() {
-        activateTab(tabId);
+        activateTab(key);
     });
 
     // Set the timer
@@ -67,7 +64,7 @@ function addTabRow(key, table) {
     var pinContainer = cell3.getElementsByTagName("div")[0];
     modalTabs[key]["Pin"] = pinContainer;
     pinContainer.addEventListener("click", function() {
-        togglePin(tabId);
+        togglePin(key);
     });
 }
 

@@ -20,7 +20,7 @@ because they need to persist over multiple chrome sessions.
 6. Don't allow multiple modals to be open at once
 */
 
-var tabs = new Map();
+var tabs = {};
 var duration;  // How long to wait after the latest activation before closing a tab (milliseconds)
 var threshold;  // We only start autoclosing if there are more than the threshold number of tabs open
 var numTabs = 0;  // Need an in-memory count of the # of tabs because when many alarms go off together, we need to make sure

@@ -14,22 +14,22 @@ describe('modal page with less than threshold tabs', function() {
     beforeEach(function(done) {
 
         // Set up tabs
-        belowThresholdTabs = { 
-            42: { 
-                Tab: { 
+        belowThresholdTabs = {
+            80: {
+                Tab: {
                     favIconUrl: 'chrome://theme/IDR_EXTENSIONS_FAVICON@2x',
-                    id: 42,
+                    id: 80,
                     title: 'Extensions' 
                 },
-                Pinned: false 
+                Pinned: false
             },
-            81: { 
-                Tab: { 
+            81: {
+                Tab: {
                     favIconUrl: 'https://www.google.ru/favicon.ico',
                     id: 81,
-                    title: 'Google' 
+                    title: 'Google'
                 },
-                Pinned: false 
+                Pinned: false
             }
         }
 
@@ -41,12 +41,10 @@ describe('modal page with less than threshold tabs', function() {
         });
 
         chrome.tabs.getCurrent.yields({
-            id: '42'
+            id: '80'
         });
 
         chrome.storage.sync.set.yields({});
-
-        // chrome.storage.sync.get.yields({});
 
         // Set up dom
         jsdom.env({
@@ -93,22 +91,22 @@ describe('modal page with less than threshold tabs', function() {
     });
 
     it('should handle addTab command', function() {
-        window.bg.tabs['80'] = { 
-            Tab: { 
+        window.bg.tabs['82'] = {
+            Tab: {
                 favIconUrl: 'https://www.google.ru/favicon.ico',
-                id: 80,
+                id: 82,
                 title: 'Google'
             },
-            Pinned: false 
+            Pinned: false
         };
 
-        chrome.runtime.onMessage.dispatch({text: 'addTab', tabId: '80'}, null, null);
+        chrome.runtime.onMessage.dispatch({text: 'addTab', tabId: '82'}, null, null);
 
         assert.equal(window.document.getElementById('tabs-table').rows.length, 3);
     });
 
     it('should handle updateTab command', function() {
-        chrome.runtime.onMessage.dispatch({text: 'updateTab', tabId: '42'}, null, null);
+        chrome.runtime.onMessage.dispatch({text: 'updateTab', tabId: '80'}, null, null);
 
         assert.equal(window.document.getElementById('tabs-table').rows.length, 2);
     });
@@ -162,7 +160,7 @@ describe('modal page with less than threshold tabs', function() {
     it('should clear alarm and timer if unpinned when togglePin is called', function() {
         window.togglePin.restore();
 
-        window.togglePin(42);
+        window.togglePin(80);
 
         sinon.assert.calledOnce(chrome.alarms.clear);
         sinon.assert.calledOnce(window.clearInterval);
@@ -171,9 +169,9 @@ describe('modal page with less than threshold tabs', function() {
     it('should do nothing if pinned when togglePin is called', function() {
         window.togglePin.restore();
 
-        window.bg.tabs[42]['Pinned'] = true;
+        window.bg.tabs[80]['Pinned'] = true;
 
-        window.togglePin(42);
+        window.togglePin(80);
 
         sinon.assert.notCalled(chrome.alarms.create);
         sinon.assert.notCalled(window.countdown);
@@ -185,53 +183,53 @@ describe('modal page with more than threshold tabs', function() {
     beforeEach(function(done) {
 
         aboveThresholdTabs = {
-            42: { 
-                Tab: { 
+            80: {
+                Tab: {
                     favIconUrl: 'chrome://theme/IDR_EXTENSIONS_FAVICON@2x',
-                    id: 42,
+                    id: 80,
                     title: 'Extensions' 
                 },
-                Pinned: false 
+                Pinned: false
             },
-            81: { 
-                Tab: { 
+            81: {
+                Tab: {
                     favIconUrl: 'https://www.google.ru/favicon.ico',
                     id: 81,
-                    title: 'Google' 
+                    title: 'Google'
                 },
-                Pinned: false 
+                Pinned: false
             },
-            82: { 
-                Tab: { 
+            82: {
+                Tab: {
                     favIconUrl: 'https://www.google.ru/favicon.ico',
                     id: 82,
-                    title: 'Google' 
+                    title: 'Google'
                 },
-                Pinned: false 
+                Pinned: false
             },
-            83: { 
-                Tab: { 
+            83: {
+                Tab: {
                     favIconUrl: 'https://www.google.ru/favicon.ico',
                     id: 83,
-                    title: 'Google' 
+                    title: 'Google'
                 },
-                Pinned: false 
+                Pinned: false
             },
-            84: { 
-                Tab: { 
+            84: {
+                Tab: {
                     favIconUrl: 'https://www.google.ru/favicon.ico',
                     id: 84,
-                    title: 'Google' 
+                    title: 'Google'
                 },
-                Pinned: false 
+                Pinned: false
             },
-            85: { 
-                Tab: { 
+            85: {
+                Tab: {
                     favIconUrl: 'https://www.google.ru/favicon.ico',
                     id: 85,
-                    title: 'Google' 
+                    title: 'Google'
                 },
-                Pinned: false 
+                Pinned: false
             }
         }
 
@@ -243,7 +241,7 @@ describe('modal page with more than threshold tabs', function() {
         });
 
         chrome.tabs.getCurrent.yields({
-            id: '42'
+            id: '80'
         });
 
         chrome.storage.sync.set.yields({});
@@ -293,16 +291,16 @@ describe('modal page with more than threshold tabs', function() {
     });
 
     it('should handle addTab command', function() {
-        window.bg.tabs['80'] = { 
-            Tab: { 
+        window.bg.tabs['86'] = {
+            Tab: {
                 favIconUrl: 'https://www.google.ru/favicon.ico',
-                id: 80,
+                id: 86,
                 title: 'Google'
             },
-            Pinned: false 
+            Pinned: false
         };
 
-        chrome.runtime.onMessage.dispatch({text: 'addTab', tabId: '80'}, null, null);
+        chrome.runtime.onMessage.dispatch({text: 'addTab', tabId: '86'}, null, null);
         sinon.assert.callCount(window.countdown, 7);
         assert.equal(window.document.getElementById('tabs-table').rows.length, 7);
     });
@@ -322,7 +320,7 @@ describe('modal page with more than threshold tabs', function() {
     it('should clear alarm and timer if unpinned when togglePin is called', function() {
         window.togglePin.restore();
 
-        window.togglePin(42);
+        window.togglePin(80);
 
         sinon.assert.calledOnce(chrome.alarms.clear);
         sinon.assert.calledOnce(window.clearInterval);
@@ -331,9 +329,9 @@ describe('modal page with more than threshold tabs', function() {
     it('should do nothing if pinned when togglePin is called', function() {
         window.togglePin.restore();
 
-        window.bg.tabs[42]['Pinned'] = true;
+        window.bg.tabs[80]['Pinned'] = true;
 
-        window.togglePin(42);
+        window.togglePin(80);
 
         sinon.assert.calledOnce(chrome.alarms.create);
 
@@ -348,7 +346,7 @@ describe('modal page with more than threshold tabs', function() {
     });
 
     it('should unpin all tabs when the unpin-all button is clicked', function() {
-        window.bg.tabs[42]['Pinned'] = true;
+        window.bg.tabs[80]['Pinned'] = true;
         window.bg.tabs[81]['Pinned'] = true;
         window.bg.tabs[82]['Pinned'] = true;
         window.bg.tabs[83]['Pinned'] = true;

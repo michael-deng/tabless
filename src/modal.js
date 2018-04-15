@@ -16,14 +16,14 @@ modalTabs = {
 */
 
 var bg;  // The window of the background page
-var modalTabs = new Map();
+var modalTabs = {};
 
 chrome.runtime.getBackgroundPage(function(background) {
     bg = background;
     var table = document.getElementById('tabs-table');
 
     // Populate the tabs table row by row
-    for (key in bg.tabs) {
+    for (let key in bg.tabs) {
         addTabRow(key, table);
     }
 

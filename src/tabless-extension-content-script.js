@@ -8,13 +8,13 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
 
         var modal = document.getElementById("tabless-extension-modal"); // Get the modal, it might not exist yet
 
-        // modal exists
+        // modal exists, so close it
         if (modal) {
             $(modal).fadeOut(300, function() {
                 $(this).remove();
             });
         }
-        // modal doesn't exist yet
+        // modal doesn't exist yet, so create it
         else {
             modal = document.createElement('div');
             modal.id = "tabless-extension-modal";

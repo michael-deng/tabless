@@ -73,7 +73,7 @@ function startAutoclose() {
 function unpauseAutoclose() {
     console.log("unpauseAutoclose started");
     var now = Date.now();
-    var difference = now - stopDate;
+    var difference = now - lastStopDate;
     for (var tabId in tabs) {
 
         // Don't unpause auto-close if the tab is pinned
@@ -106,7 +106,7 @@ function stopAutoclose() {
     //      });
     //  }
     // }
-    stopDate = Date.now();
+    lastStopDate = Date.now();
 
     chrome.runtime.sendMessage({text: "stopAll"}, function(response) {
         console.log("got stopAll response in stopAutoClose");

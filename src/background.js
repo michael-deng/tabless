@@ -24,8 +24,8 @@ var duration;  // How long to wait after the latest activation before closing a 
 var threshold;  // We only start autoclosing if there are more than the threshold number of tabs open
 var numTabs = 0;  // Need an in-memory count of the # of tabs because when many alarms go off together, we need to make sure
                   // we don't delete past the threshold (because multiple alarms can sound before the removal happens)
-var stopDate;  // The date when stopAutoClose() is last called, so when we call unpauseAutoclose(), 
-               // we can calculate new end dates
+var lastStopDate;  // The date when stopAutoClose() is last called, so when we call unpauseAutoclose(),
+                   // we can calculate new end dates
 var locked = false;  // We use this locked variable to ensure we only call unpauseAutoclose 
                      // when the idleState changes from locked to active, not idle to active
 

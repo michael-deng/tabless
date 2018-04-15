@@ -1,9 +1,81 @@
 /**
+ * Add a new tab row in the UI
+ *
+ * @param {number} key - The id of the tab
+ * @param {object} table - The UI table containing all the tabs
+ */
+function addTabRow(key, table) {
+    var tab = bg.tabs[key]["Tab"];
+    var end = bg.tabs[key]["End"];
+    var pinned = bg.tabs[key]["Pinned"];
+    var row = table.insertRow(-1);
+
+    var cell1 = row.insertCell(0);
+    var cell2 = row.insertCell(1);
+    var cell3 = row.insertCell(2);
+
+    modalTabs[key] = {};
+    modalTabs[key]["Row"] = row;
+
+    // Use let to get a block-scoped id that can be passed to event listeners
+    let tabId = key;
+
+    // Set the favicon
+    var favIconUrl = tab.favIconUrl;
+    if (favIconUrl) {
+        if (favIconUrl.startsWith('chrome://') || favIconUrl.startsWith('chrome-extension://')) {
+            cell1.innerHTML = "<img class=\"favicon\" src=\"google.png\">";
+        } else {
+            // secureFavIconUrl = favIconUrl.replace(/^http:/, 'https:');
+            cell1.innerHTML = "<img class=\"favicon\" src=" + favIconUrl + ">";
+        }
+    } else {
+        cell1.innerHTML = "<img class=\"favicon\" src=\"default_favicon.png\">";
+    }
+
+    // Set the tab title
+    cell2.innerHTML = "<div class=\"tab-title\">" + tab.title + "</div><div class=\"tab-timer\"></div>";
+
+    // Set up the redirect link on the title
+    var title = cell2.getElementsByTagName("div")[0];
+    title.addEventListener("click", function() {
+        activateTab(tabId);
+    });
+
+    // Set the timer
+    var timer = cell2.getElementsByClassName("tab-timer")[0];
+    modalTabs[key]["Timer"] = timer;
+
+    // Set the tab pin icon
+    cell3.innerHTML = "<div class=\"tab-pin\"><img title=\"Pin this tab\" src=\"tabless_pin_red.png\"><img title=\"Pin this tab\" src=\"tabless_pin_grey.png\"></div>";
+
+    if (!pinned) {
+        cell3.getElementsByTagName("img")[0].style.display = "none";
+        // cell3.innerHTML = "<img src=\"tabless_pin_red.png\">";
+        if (Object.keys(bg.tabs).length > bg.threshold) {
+            modalTabs[key]["TimerId"] = countdown(end, timer);
+        } else {
+            timer.innerHTML = "Below threshold";
+        }
+    } else {
+        cell3.getElementsByTagName("img")[1].style.display = "none";
+        // cell3.innerHTML = "<img src=\"tabless_pin_grey.png\">";
+        timer.innerHTML = "Pinned";
+    }
+
+    // Set up the pin/unpin button
+    var pinContainer = cell3.getElementsByTagName("div")[0];
+    modalTabs[key]["Pin"] = pinContainer;
+    pinContainer.addEventListener("click", function() {
+        togglePin(tabId);
+    });
+}
+
+/**
  * Activate a tab
  *
  * @param {number} tabId - The Id of the tab we're activating
  */
-
  function activateTab(tabId) {
 
     // Close the tabs modal

@@ -24,68 +24,7 @@ chrome.runtime.getBackgroundPage(function(background) {
 
     // Populate the tabs table row by row
     for (key in bg.tabs) {
-        var tab = bg.tabs[key]["Tab"];
-        var end = bg.tabs[key]["End"];
-        var pinned = bg.tabs[key]["Pinned"];
-        var row = table.insertRow(-1);
-
-        var cell1 = row.insertCell(0);
-        var cell2 = row.insertCell(1);
-        var cell3 = row.insertCell(2);
-
-        // Use let to get a block-scoped id that can be passed to event listeners
-        let tabId = key;
-
-        modalTabs[key] = {};
-        modalTabs[key]["Row"] = row;
-
-        // Set the favicon
-        var favIconUrl = tab.favIconUrl;
-        if (favIconUrl) {
-            if (favIconUrl.startsWith('chrome://') || favIconUrl.startsWith('chrome-extension://')) {
-                cell1.innerHTML = "<img class=\"favicon\" src=\"google.png\">";
-            } else {
-                // secureFavIconUrl = favIconUrl.replace(/^http:/, 'https:');
-                cell1.innerHTML = "<img class=\"favicon\" src=" + favIconUrl + ">";
-            }
-        } else {
-            cell1.innerHTML = "<img class=\"favicon\" src=\"default_favicon.png\">";
-        }
-
-        // Set the tab title
-        cell2.innerHTML = "<div class=\"tab-title\">" + tab.title + "</div><div class=\"tab-timer\"></div>";
-        var title = cell2.getElementsByTagName("div")[0];
-
-        title.addEventListener("click", function() {
-            activateTab(tabId, bg);
-        });
-
-        var timer = cell2.getElementsByClassName("tab-timer")[0];
-        modalTabs[key]["Timer"] = timer;
-
-        // Set the tab pin icon
-        cell3.innerHTML = "<div class=\"tab-pin\"><img title=\"Pin this tab\" src=\"tabless_pin_red.png\"><img title=\"Pin this tab\" src=\"tabless_pin_grey.png\"></div>";
-
-        if (!pinned) {
-            cell3.getElementsByTagName("img")[0].style.display = "none";
-            // cell3.innerHTML = "<img src=\"tabless_pin_red.png\">";
-            if (Object.keys(bg.tabs).length > bg.threshold) {
-                modalTabs[key]["TimerId"] = countdown(end, timer);
-            } else {
-                timer.innerHTML = "Below threshold";
-            }
-        } else {
-            cell3.getElementsByTagName("img")[1].style.display = "none";
-            // cell3.innerHTML = "<img src=\"tabless_pin_grey.png\">";
-            timer.innerHTML = "Pinned";
-        }
-
-        var pinContainer = cell3.getElementsByTagName("div")[0];
-        modalTabs[key]["Pin"] = pinContainer;
-
-        pinContainer.addEventListener("click", function() {
-            togglePin(tabId);
-        });
+        addTabRow(key, table);
     }
 
     // Populate "Settings" tab with information from background
@@ -98,55 +37,9 @@ chrome.runtime.getBackgroundPage(function(background) {
     // Listen to commands from the background page
     chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
         if (msg.text == "addTab") {
-            var key = msg.tabId;
-
             var table = document.getElementById('tabs-table');
-            var row = table.insertRow(-1);
-        
-            var cell1 = row.insertCell(0);
-            var cell2 = row.insertCell(1);
-            var cell3 = row.insertCell(2);
 
-            var tab = bg.tabs[key]["Tab"];
-
-            modalTabs[key] = {};
-            modalTabs[key]["Row"] = row;
-
-            var favIconUrl = tab.favIconUrl;
-            if (favIconUrl) {
-                if (favIconUrl.startsWith('chrome://') || favIconUrl.startsWith('chrome-extension://')) {
-                    cell1.innerHTML = "<img class=\"favicon\" src=\"google.png\">";
-                } else {
-                    // secureFavIconUrl = favIconUrl.replace(/^http:/, 'https:');
-                    cell1.innerHTML = "<img class=\"favicon\" src=" + favIconUrl + ">";
-                }
-            } else {
-                cell1.innerHTML = "<img class=\"favicon\" src=\"default_favicon.png\">";
-            }
-
-            cell2.innerHTML = "<div class=\"tab-title\">" + tab.title + "</div><div class=\"tab-timer\"></div>";
-            var timer = cell2.getElementsByClassName("tab-timer")[0];
-            modalTabs[key]["Timer"] = timer;
-
-            cell3.innerHTML = "<div class=\"tab-pin\"><img title=\"Pin this tab\" src=\"tabless_pin_red.png\"><img title=\"Pin this tab\" src=\"tabless_pin_grey.png\"></div>";
-
-            cell3.getElementsByTagName("img")[0].style.display = "none";
-            // cell3.innerHTML = "<img src=\"tabless_pin_red.png\">";
-            if (Object.keys(bg.tabs).length > bg.threshold) {
-                modalTabs[key]["TimerId"] = countdown(bg.tabs[key]["End"], timer);
-            } else {
-                timer.innerHTML = "Below threshold";       
-            }
-
-            var pinContainer = cell3.getElementsByTagName("div")[0];
-            modalTabs[key]["Pin"] = pinContainer;
-
-            // Use let to get a block-scoped id that can be passed to event listener
-            let tabId = key;
-
-            pinContainer.addEventListener("click", function() {
-                togglePin(tabId);
-            });
+            addTabRow(msg.tabId, table);
         }
 
         else if (msg.text == "updateTab") {
@@ -340,33 +233,33 @@ chrome.runtime.getBackgroundPage(function(background) {
                 setTimeout(function() {
                     submitIndicator.innerHTML = "Saved!";
                 }, 500);
+
+                if (Object.keys(bg.tabs).length > bg.threshold) {
+                    // Update the timers of every tab
+                    console.log("Start autoclose in settings");
+                    chrome.alarms.clearAll();  // Might have to add callback in parameter
+                    var end = Date.now() + bg.duration;
+                    for (key in bg.tabs) {
+                        if (!bg.tabs[key]["Pinned"]) {
+                            bg.tabs[key]["End"] = end;
+                            chrome.alarms.create(key.toString(), {when: end});
+                            clearInterval(modalTabs[key]["TimerId"]);
+                            modalTabs[key]["TimerId"] = countdown(end, modalTabs[key]["Timer"]);  // Update the timers UI in the "Tabs" tab
+                        }
+                    }
+                } else {
+                    // Stop autoclose
+                    console.log("Stop autoclose in settings");
+                    chrome.alarms.clearAll();
+                    for (key in bg.tabs) {
+                        if (!bg.tabs[key]["Pinned"]) {
+                            clearInterval(modalTabs[key]["TimerId"]);
+                            modalTabs[key]["Timer"].innerHTML = "Below threshold";  // Update the timers UI in the "Tabs" tab
+                        }
+                    }
+                }
             }
         });
-
-        if (Object.keys(bg.tabs).length > bg.threshold) {
-            // Update the timers of every tab
-            console.log("Start autoclose in settings");
-            chrome.alarms.clearAll();  // Might have to add callback in parameter
-            var end = Date.now() + bg.duration;
-            for (key in bg.tabs) {
-                if (!bg.tabs[key]["Pinned"]) {
-                    bg.tabs[key]["End"] = end;
-                    chrome.alarms.create(key.toString(), {when: end});
-                    clearInterval(modalTabs[key]["TimerId"]);
-                    modalTabs[key]["TimerId"] = countdown(end, modalTabs[key]["Timer"]);  // Update the timers UI in the "Tabs" tab
-                }
-            }
-        } else {
-            // Stop autoclose
-            console.log("Stop autoclose in settings");
-            chrome.alarms.clearAll();
-            for (key in bg.tabs) {
-                if (!bg.tabs[key]["Pinned"]) {
-                    clearInterval(modalTabs[key]["TimerId"]);
-                    modalTabs[key]["Timer"].innerHTML = "Below threshold";  // Update the timers UI in the "Tabs" tab
-                }
-            }
-        }
         return false;
     });
 

@@ -2,8 +2,8 @@
     "manifest_version": 2,
 
     "name": "Tabless",
-    "description": "This extension closes unused tabs",
-    "version": "0.0.0.1",
+    "description": "Tabless automatically closes your unused tabs to boost your productivity.",
+    "version": "0.0.0.3",
 
     "browser_action": {
         "default_icon": "tabless_icon.png"

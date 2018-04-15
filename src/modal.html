@@ -24,7 +24,7 @@
     <body>
         <div class="header">
                 <div id="settings-open-btn"><i class="fa fa-cog" aria-hidden="true"></i></div>
-                <div id="title">Tabless</div>
+                <div id="title">Tabless <span id="beta">(Beta)</span></div>
                 <div id="modal-close-btn"><i class="fa fa-times" aria-hidden="true"></i></div>
             </div>
         </div>
@@ -56,7 +56,7 @@
 
                 <br>
 
-                <label>Autoclose Threshold</label>
+                <label>Autoclose threshold</label>
                 <!-- <div class="tooltip">
                     <i class="fa fa-question-circle" aria-hidden="true"></i>
                     <span class="tooltiptext" id="tooltiptext2">Stop auto-close when there are only a few tabs open</span>
@@ -64,7 +64,7 @@
                 <br>
                 <input id="min-open-tabs"> tabs
                 <div id="min-open-tabs-error"></div>
-                <div class="tip">Autoclose is disabled when you have less than the threshold number of tabs open</div>
+                <div class="tip">Autoclose is disabled when you have less than this many tabs open</div>
 
                 <br>
 
@@ -73,7 +73,9 @@
 
                 <br>
 
-                <div class="tip-large"><b>Protip:</b> If you want to temporarily disable Tabless, just set the Autoclose Threshold to a super high number, like 999.</div>
+                <div class="tip-large"><b>Protip:</b> If you want to temporarily disable Tabless, just set the Autoclose threshold to a super high number, like 999.</div>
+
+                <div id="link-to-website">Check out our website at <a target="_blank" href="https://usetabless.com">usetabless.com</a></div>
             </form>
         </div>
         <script src="modalFuncs.js"></script>

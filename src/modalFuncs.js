@@ -1,4 +1,26 @@
 /**
+ * Activate a tab
+ *
+ * @param {number} tabId - The Id of the tab we're activating
+ */
+
+ function activateTab(tabId) {
+
+    // Close the tabs modal
+    chrome.tabs.getCurrent(function(tab) {
+        chrome.tabs.sendMessage(tab.id, {text: "toggle"});
+    });
+
+    // Switch to the new tab's window
+    chrome.tabs.get(parseInt(tabId), function(tab) {
+        chrome.windows.update(tab.windowId, {focused: true});
+    });
+
+    // Switch to the new tab
+    chrome.tabs.update(parseInt(tabId), {active: true});
+ }
+
+/**
  * Pin or unpin a tab
  *
  * @param {number} tabId - The Id of the tab we're pinning/unpinning
@@ -46,10 +68,9 @@ function countdown(end, element) {
 
     // Update the count down every 1 second
     var x = setInterval(function() {
-
         setTimer(end, element);
-
     }, 1000);
+
     return x;
 }
 

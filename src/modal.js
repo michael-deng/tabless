@@ -33,6 +33,9 @@ chrome.runtime.getBackgroundPage(function(background) {
         var cell2 = row.insertCell(1);
         var cell3 = row.insertCell(2);
 
+        // Use let to get a block-scoped id that can be passed to event listeners
+        let tabId = key;
+
         modalTabs[key] = {};
         modalTabs[key]["Row"] = row;
 
@@ -51,6 +54,12 @@ chrome.runtime.getBackgroundPage(function(background) {
 
         // Set the tab title
         cell2.innerHTML = "<div class=\"tab-title\">" + tab.title + "</div><div class=\"tab-timer\"></div>";
+        var title = cell2.getElementsByTagName("div")[0];
+
+        title.addEventListener("click", function() {
+            activateTab(tabId, bg);
+        });
+
         var timer = cell2.getElementsByClassName("tab-timer")[0];
         modalTabs[key]["Timer"] = timer;
 
@@ -74,11 +83,8 @@ chrome.runtime.getBackgroundPage(function(background) {
         var pinContainer = cell3.getElementsByTagName("div")[0];
         modalTabs[key]["Pin"] = pinContainer;
 
-        // Use let to get a block-scoped id that can be passed to event listener
-        let tabId = key;
-
         pinContainer.addEventListener("click", function() {
-            togglePin(tabId, bg);
+            togglePin(tabId);
         });
     }
 
@@ -139,7 +145,7 @@ chrome.runtime.getBackgroundPage(function(background) {
             let tabId = key;
 
             pinContainer.addEventListener("click", function() {
-                togglePin(tabId, bg);
+                togglePin(tabId);
             });
         }
 

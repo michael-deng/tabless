@@ -44,6 +44,8 @@ describe('modal page with less than threshold tabs', function() {
             id: '42'
         });
 
+        chrome.storage.sync.set.yields({});
+
         // chrome.storage.sync.get.yields({});
 
         // Set up dom
@@ -244,7 +246,7 @@ describe('modal page with more than threshold tabs', function() {
             id: '42'
         });
 
-        // chrome.storage.sync.get.yields({});
+        chrome.storage.sync.set.yields({});
 
         // Set up dom
         jsdom.env({

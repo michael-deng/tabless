@@ -33,6 +33,7 @@ chrome.runtime.getBackgroundPage(function(background) {
     document.getElementById("time-limit-hours").value = durationHours;
     document.getElementById("time-limit-minutes").value = durationMinutes;
     document.getElementById("min-open-tabs").value = bg.threshold;
+    document.getElementById("min-open-tabs-count").innerHTML = bg.threshold;
 
     // Listen to commands from the background page
     chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
@@ -101,6 +102,14 @@ chrome.runtime.getBackgroundPage(function(background) {
                     modalTabs[tabId]["Timer"].innerHTML = "Below threshold";
                 }
             }
+        }
+    });
+
+    // Listen to changes in the threshold input
+    document.getElementById("min-open-tabs").addEventListener('input', function(event) {
+        if (isNumeric(this.value)) {
+            // Update the min open tabs count in the caption
+            document.getElementById("min-open-tabs-count").innerHTML = this.value;
         }
     });
 

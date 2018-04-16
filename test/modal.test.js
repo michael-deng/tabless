@@ -139,6 +139,15 @@ describe('modal page with less than threshold tabs', function() {
         sinon.assert.calledTwice(window.clearInterval);
     });
 
+    it('should update the min open tabs count correctly', function() {
+        window.isNumeric.restore();
+
+        window.document.getElementById('min-open-tabs').value = '10';
+        window.document.getElementById('min-open-tabs').dispatchEvent(new window.Event('input'));
+
+        assert.equal(window.document.getElementById('min-open-tabs-count').innerHTML, '10');
+    });
+
     it('should save settings', function() {
         window.isNumeric.restore();
 

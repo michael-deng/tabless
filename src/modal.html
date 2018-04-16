@@ -44,7 +44,7 @@
 
             <form id="settings-form">
 
-                <label>Duration</label>
+                <label>Tab lifespan</label>
                 <!-- <div class="tooltip">
                     <i class="fa fa-question-circle" aria-hidden="true"></i>
                     <span class="tooltiptext">How long to keep inactive tabs open?</span>
@@ -56,15 +56,15 @@
 
                 <br>
 
-                <label>Autoclose threshold</label>
+                <label>Minimum tabs</label>
                 <!-- <div class="tooltip">
                     <i class="fa fa-question-circle" aria-hidden="true"></i>
                     <span class="tooltiptext" id="tooltiptext2">Stop auto-close when there are only a few tabs open</span>
                 </div> -->
                 <br>
-                <input id="min-open-tabs"> tabs
+                <input id="min-open-tabs">
                 <div id="min-open-tabs-error"></div>
-                <div class="tip">Autoclose is disabled when you have less than this many tabs open</div>
+                <div class="tip">Don't autoclose if you have <span id="min-open-tabs-count"></span> or fewer tabs open</div>
 
                 <br>
 
@@ -73,7 +73,7 @@
 
                 <br>
 
-                <div class="tip-large"><b>Protip:</b> If you want to temporarily disable Tabless, just set the Autoclose threshold to a super high number, like 999.</div>
+                <div class="tip-large"><b>Protip:</b> If you want to temporarily disable Tabless, just set Minimum tabs to a super high number, like 999.</div>
 
                 <div id="link-to-website">Check out our website at <a target="_blank" href="https://usetabless.com">usetabless.com</a></div>
             </form>

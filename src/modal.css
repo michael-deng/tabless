@@ -214,18 +214,27 @@ div.active {
 }
 
 #settings-form {
-    padding: 10px 20px;
+    padding: 20px 20px;
+    font-size: 0.9em;
 }
 
-#settings-form input {
-    margin: 5px 0 3px 0;
-    border: 1px solid #888888;
-    border-radius: 2px;
-    background: none;
-    height: 30px;
-    width: 40px;
-    padding: 3px;
+#settings-form label {
+    display: inline-block;
+    width: 110px;
+}
+
+body #settings-form input {
+    font-family: 'Rubik', sans-serif;
     font-size: 1em;
+    color: #555555;
+    margin: 5px 0 3px 0;
+    border: none;
+    border-bottom: 2px solid #888888;
+    background: none;
+    height: 24px;
+    width: 28px;
+    padding: 0;
+    text-align: center;
 }
 
 #settings-form input:focus {

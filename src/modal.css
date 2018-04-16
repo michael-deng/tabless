@@ -215,12 +215,11 @@ div.active {
 
 #settings-form {
     padding: 20px 20px;
-    font-size: 0.9em;
 }
 
 #settings-form label {
     display: inline-block;
-    width: 110px;
+    width: 120px;
 }
 
 body #settings-form input {
@@ -247,7 +246,9 @@ body #settings-form input {
     background: #E71D36;
     color: white;
     border: none;
+    height: 30px;
     width: 80px;
+    border-radius: 2px;
     display: block;
 }
 

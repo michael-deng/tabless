@@ -22,13 +22,13 @@ function addTabRow(key, table) {
     var favIconUrl = tab.favIconUrl;
     if (favIconUrl) {
         if (favIconUrl.startsWith('chrome://') || favIconUrl.startsWith('chrome-extension://')) {
-            cell1.innerHTML = "<img class=\"favicon\" src=\"google.png\">";
+            cell1.innerHTML = "<img class=\"favicon\" src=\"assets\/google.png\">";
         } else {
             // secureFavIconUrl = favIconUrl.replace(/^http:/, 'https:');
             cell1.innerHTML = "<img class=\"favicon\" src=" + favIconUrl + ">";
         }
     } else {
-        cell1.innerHTML = "<img class=\"favicon\" src=\"default_favicon.png\">";
+        cell1.innerHTML = "<img class=\"favicon\" src=\"assets\/default_favicon.png\">";
     }
 
     // Set the tab title
@@ -65,11 +65,11 @@ function addTabRow(key, table) {
     modalTabs[key]["Timer"] = timer;
 
     // Set the tab pin icon
-    cell3.innerHTML = "<div class=\"tab-pin\"><img title=\"Pin this tab\" src=\"tabless_pin_red.png\"><img title=\"Pin this tab\" src=\"tabless_pin_grey.png\"></div>";
+    cell3.innerHTML = "<div class=\"tab-pin\"><img title=\"Pin this tab\" src=\"assets\/tabless_pin_red.png\"><img title=\"Pin this tab\" src=\"assets\/tabless_pin_grey.png\"></div>";
 
     if (!pinned) {
         cell3.getElementsByTagName("img")[0].style.display = "none";
-        // cell3.innerHTML = "<img src=\"tabless_pin_red.png\">";
+        // cell3.innerHTML = "<img src=\"assets\/tabless_pin_red.png\">";
         if (Object.keys(bg.tabs).length > bg.threshold) {
             modalTabs[key]["TimerId"] = countdown(end, timer);
         } else {
@@ -77,7 +77,7 @@ function addTabRow(key, table) {
         }
     } else {
         cell3.getElementsByTagName("img")[1].style.display = "none";
-        // cell3.innerHTML = "<img src=\"tabless_pin_grey.png\">";
+        // cell3.innerHTML = "<img src=\"assets\/tabless_pin_grey.png\">";
         timer.innerHTML = "Pinned";
     }
 

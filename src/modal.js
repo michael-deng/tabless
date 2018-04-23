@@ -54,13 +54,13 @@ chrome.runtime.getBackgroundPage(function(background) {
             var favIconUrl = tab.favIconUrl;
             if (favIconUrl) {
                 if (favIconUrl.startsWith('chrome://') || favIconUrl.startsWith('chrome-extension://')) {
-                    cell1.innerHTML = "<img class=\"favicon\" src=\"google.png\">";
+                    cell1.innerHTML = "<img class=\"favicon\" src=\"assets\/google.png\">";
                 } else {
                     // secureFavIconUrl = favIconUrl.replace(/^http:/, 'https:');
                     cell1.innerHTML = "<img class=\"favicon\" src=" + favIconUrl + ">";
                 }
             } else {
-                cell1.innerHTML = "<img class=\"favicon\" src=\"default_favicon.png\">";
+                cell1.innerHTML = "<img class=\"favicon\" src=\"assets\/default_favicon.png\">";
             }
 
             cell2.getElementsByClassName("tab-title")[0].innerHTML = tab.title;

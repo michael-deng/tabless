@@ -10,6 +10,17 @@ modalTabs = {
 }
 */
 
+/*
+The structure of the historyTabs dictionary:
+
+historyTabs = {
+    tabId: {
+        "Timer": HTML element,
+        "TimerId": integer (need this to clear timers),
+    }
+}
+*/
+
 /* TODO
 1. Clean up code, use DRY
 2. Think about how Timer and TimerId might break in different use cases

@@ -117,17 +117,10 @@ function addHistoryRow(key, table) {
         cell1.innerHTML = "<img class=\"favicon\" src=\"assets\/default_favicon.png\">";
     }
 
-    var distance = Date.now() - bg.closedTabs[key]["Closed"];
+    cell2.innerHTML = "<div class=\"history-title\">" + tab.title + "</div><div class=\"history-time-closed\"></div>";
 
-    // Time calculations for days, hours, minutes and seconds
-    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-    var time = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
-
-    cell2.innerHTML = "<div class=\"history-title\">" + tab.title + "</div><div class=\"history-time-closed\">" + time + "</div>";
+    var timer = cell2.getElementsByClassName("history-time-closed")[0];
+    countup(bg.closedTabs[key]["Closed"], timer);
 
     // Set up the redirect link on the title
     var title = cell2.getElementsByTagName("div")[0];
@@ -193,7 +186,7 @@ function togglePin(tabId) {
 }
 
 /**
- * Make element a countdown to end
+ * Make element a countdown
  *
  * @param {number} end - UTC time of when the tab should be closed
  * @param {object} element - The HTML element that will contain the countdown
@@ -202,11 +195,11 @@ function togglePin(tabId) {
  */
 function countdown(end, element) {
 
-    setTimer(end, element);
+    setCountdownTimer(end, element);
 
-    // Update the count down every 1 second
+    // Update the countdown every 1 second
     var x = setInterval(function() {
-        setTimer(end, element);
+        setCountdownTimer(end, element);
     }, 1000);
 
     return x;
@@ -219,10 +212,8 @@ function countdown(end, element) {
  * @param {number} countDownDate - When the tab will be closed
  * @param {object} element - The HTML element that contains the countdown
  */
-function setTimer(countDownDate, element) {
-    // Find the distance between now an the count down date
-    var currentDate = Date.now()
-    var distance = countDownDate - currentDate;
+function setCountdownTimer(countDownDate, element) {
+    var distance = countDownDate - Date.now();
 
     // Time calculations for days, hours, minutes and seconds
     var days = Math.floor(distance / (1000 * 60 * 60 * 24));
@@ -237,10 +228,56 @@ function setTimer(countDownDate, element) {
     //   element.innerHTML = "Less than a minute left";
     // } 
 
-    // If the count down is finished, write some text 
+    // If the countdown is finished, write some text 
     if (distance < 5000) {
         clearInterval(this);
         element.innerHTML = "A few seconds left";
+    }
+}
+
+/**
+ * Make element a countup
+ *
+ * @param {number} start - UTC time of when the tab was closed
+ * @param {object} element - The HTML element that will contain the countup
+ * @returns {number} The timer's Id
+ */
+function countup(start, element) {
+
+    setCountupTimer(start, element);
+
+    // Update the countup every 1 second
+    var x = setInterval(function() {
+        setCountupTimer(start, element);
+    }, 1000);
+
+    return x;
+}
+
+/**
+ * A helper function called every second by countup() that makes element
+ * a countup from start
+ *
+ * @param {number} start - When the tab was first closed
+ * @param {object} element - The HTML element that contains the countup
+ */
+function setCountupTimer(start, element) {
+    var distance = Date.now() - start;
+
+    // Time calculations for days, hours, minutes and seconds
+    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    if (days == 0 && hours == 0 && minutes == 0) {
+        element.innerHTML = "<1m ago";
+    } else if (days == 0 && hours == 0) {
+        element.innerHTML = minutes + "m ago";
+    } else if (days == 0) {
+        element.innerHTML = hours + "h ago";
+    } else {
+        element.innerHTML = days + "d ago";
     }
 }
 

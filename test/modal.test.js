@@ -69,7 +69,9 @@ describe('modal page with less than threshold tabs', function() {
                     // Set up spies before loading modal.js
                     sinon.stub(window, 'togglePin');
                     sinon.stub(window, 'countdown');
-                    sinon.stub(window, 'setTimer');
+                    sinon.stub(window, 'setCountdownTimer');
+                    sinon.stub(window, 'countup');
+                    sinon.stub(window, 'setCountupTimer');
                     sinon.stub(window, 'isNumeric');
                     sinon.stub(window, 'clearInterval');
 
@@ -119,6 +121,7 @@ describe('modal page with less than threshold tabs', function() {
 
         chrome.runtime.onMessage.dispatch({text: 'addHistory', tabId: '82'}, null, null);
 
+        sinon.assert.calledOnce(window.countup);
         assert.equal(window.document.getElementById('history-table').rows.length, 1);
     });
 
@@ -294,7 +297,7 @@ describe('modal page with more than threshold tabs', function() {
                     // Set up spies before loading modal.js
                     sinon.stub(window, 'togglePin');
                     sinon.stub(window, 'countdown');
-                    sinon.stub(window, 'setTimer');
+                    sinon.stub(window, 'setCountdownTimer');
                     sinon.stub(window, 'isNumeric');
                     sinon.stub(window, 'clearInterval');
 

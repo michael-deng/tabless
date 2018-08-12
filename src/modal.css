@@ -372,6 +372,12 @@ body #settings-form input {
     font-weight: 500;
 }
 
+#history-caption {
+    font-size: 0.8em;
+    padding: 5px;
+    color: #888888;
+}
+
 #history-close-btn {
     color: #888888;
     padding-left: 20px;

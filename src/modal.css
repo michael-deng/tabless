@@ -161,6 +161,10 @@ div.active {
     cursor: default;
 }
 
+.dot {
+    float: left;
+}
+
 .tab-timer {
     float: left;
     margin-top: 3px;

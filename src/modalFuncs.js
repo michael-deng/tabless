@@ -5,11 +5,13 @@
  * @param {object} table - The UI table containing all the tabs
  */
 function addTabRow(key, table) {
+    console.log(key);
+    console.log(bg.tabs[key]);
     var tab = bg.tabs[key]["Tab"];
     var pinned = bg.tabs[key]["Pinned"];
     var created = bg.tabs[key]["Created"];
     var end = bg.tabs[key]["End"];
-    var row = table.insertRow(-1);
+    var row = table.insertRow(0);
 
     var cell1 = row.insertCell(0);
     var cell2 = row.insertCell(1);
@@ -88,6 +90,52 @@ function addTabRow(key, table) {
         togglePin(key);
     });
 }
+
+/**
+ * Add a new history row in the UI
+ *
+ * @param {number} key - The id of the tab
+ * @param {object} table - The UI table containing all the closed tabs
+ */
+function addHistoryRow(key, table) {
+    var tab = bg.closedTabs[key]["Tab"];
+    var row = table.insertRow(0);
+
+    var cell1 = row.insertCell(0);
+    var cell2 = row.insertCell(1);
+
+    // Set the favicon
+    var favIconUrl = tab.favIconUrl;
+    if (favIconUrl) {
+        if (favIconUrl.startsWith('chrome://') || favIconUrl.startsWith('chrome-extension://')) {
+            cell1.innerHTML = "<img class=\"favicon\" src=\"assets\/google.png\">";
+        } else {
+            // secureFavIconUrl = favIconUrl.replace(/^http:/, 'https:');
+            cell1.innerHTML = "<img class=\"favicon\" src=" + favIconUrl + ">";
+        }
+    } else {
+        cell1.innerHTML = "<img class=\"favicon\" src=\"assets\/default_favicon.png\">";
+    }
+
+    var distance = Date.now() - bg.closedTabs[key]["Closed"];
+
+    // Time calculations for days, hours, minutes and seconds
+    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    var time = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+
+    cell2.innerHTML = "<div class=\"history-title\">" + tab.title + "</div><div class=\"history-time-closed\">" + time + "</div>";
+
+    // Set up the redirect link on the title
+    var title = cell2.getElementsByTagName("div")[0];
+    title.addEventListener("click", function() {
+        chrome.tabs.create({url: tab.url});
+    });
+}
+
 
 /**
  * Activate a tab

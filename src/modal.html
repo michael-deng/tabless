@@ -19,62 +19,77 @@
         because this page (modal.html) is part of the chrome extension -->
         <link rel="stylesheet" href="modal.css">
         <link href="https://fonts.googleapis.com/css?family=Rubik:400,500" rel="stylesheet">
-        <script src="assets/fontawesome.js"></script>
+        <link rel="stylesheet" href="assets/font-awesome-4.7.0/css/font-awesome.min.css">
     </head>
     <body>
         <div class="header">
-                <div id="settings-open-btn"><i class="fa fa-cog" aria-hidden="true"></i></div>
+                <div id="left-btns">
+                    <div id="settings-open-btn"><i class="fa fa-cog" aria-hidden="true"></i></div>
+                    <div id="history-open-btn"><i class="fa fa-history" aria-hidden="true"></i></div>
+                </div>
                 <div id="title">Tabless <span id="beta">(Beta)</span></div>
                 <div id="modal-close-btn"><i class="fa fa-times" aria-hidden="true"></i></div>
             </div>
         </div>
 
-        <div id="tabs">
+        <div id="tabs-body">
             <div id="unpin-all">Unpin all</div>
             <div id="pin-all">Pin all</div>
             <table id="tabs-table"></table>
         </div>
 
         <div id="settings">
-
             <div class="header">
                 <div id="settings-close-btn"><i class="fa fa-arrow-left" aria-hidden="true"></i></div>
                 <div id="settings-title">Settings</div>
             </div>
 
-            <form id="settings-form">
+            <div id="settings-body">
+                <form id="settings-form">
 
-                <label>Tab lifespan</label>
-                <!-- <div class="tooltip">
-                    <i class="fa fa-question-circle" aria-hidden="true"></i>
-                    <span class="tooltiptext">How long to keep inactive tabs open?</span>
-                </div> -->
-                <input id="time-limit-hours"> hrs,
-                <input id="time-limit-minutes"> min
-                <div id="time-limit-error"></div>
+                    <label>Tab lifespan</label>
+                    <!-- <div class="tooltip">
+                        <i class="fa fa-question-circle" aria-hidden="true"></i>
+                        <span class="tooltiptext">How long to keep inactive tabs open?</span>
+                    </div> -->
+                    <input id="time-limit-hours"> hrs,
+                    <input id="time-limit-minutes"> min
+                    <div id="time-limit-error"></div>
 
-                <br>
+                    <br>
 
-                <label>Minimum tabs</label>
-                <!-- <div class="tooltip">
-                    <i class="fa fa-question-circle" aria-hidden="true"></i>
-                    <span class="tooltiptext" id="tooltiptext2">Stop auto-close when there are only a few tabs open</span>
-                </div> -->
-                <input id="min-open-tabs">
-                <div id="min-open-tabs-error"></div>
-                <div class="tip">Don't autoclose if you have <span id="min-open-tabs-count"></span> or fewer tabs</div>
+                    <label>Minimum</label>
+                    <!-- <div class="tooltip">
+                        <i class="fa fa-question-circle" aria-hidden="true"></i>
+                        <span class="tooltiptext" id="tooltiptext2">Stop auto-close when there are only a few tabs open</span>
+                    </div> -->
+                    <input id="min-open-tabs"> tabs
+                    <div id="min-open-tabs-error"></div>
+                    <div class="tip">Don't autoclose if you have <span id="min-open-tabs-count"></span> or fewer tabs</div>
 
-                <br>
+                    <br>
 
-                <input type="submit" class="submit" value="Save">
-                <div class="submit-indicator"></div>
+                    <input type="submit" class="submit" value="Save">
+                    <div class="submit-indicator"></div>
 
-                <br>
+                    <br>
 
-                <div class="tip-large"><b>Protip:</b> If you want to temporarily disable Tabless, just set Minimum tabs to a super high number, like 999.</div>
+                    <div class="tip-large"><b>Protip:</b> If you want to temporarily disable Tabless, just set Minimum tabs to a super high number, like 999.</div>
 
-                <div id="link-to-website">Check out our website at <a target="_blank" href="https://usetabless.com">usetabless.com</a></div>
-            </form>
+                    <div id="link-to-website">Check out our website at <a target="_blank" href="https://usetabless.com">usetabless.com</a></div>
+                </form>
+            </div>
+        </div>
+
+        <div id="history">
+            <div class="header">
+                <div id="history-close-btn"><i class="fa fa-arrow-left" aria-hidden="true"></i></div>
+                <div id="history-title">History</div>
+            </div>
+
+            <div id="history-body">
+                <table id="history-table"></table>
+            </div>
         </div>
         <script src="modalFuncs.js"></script>
         <script src="modal.js"></script>

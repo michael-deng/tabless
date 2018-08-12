@@ -29,6 +29,7 @@ var lastStopDate;  // The date when stopAutoClose() is last called, so when we c
                    // we can calculate new end dates
 var locked = false;  // We use this locked variable to ensure we only call unpauseAutoclose 
                      // when the idleState changes from locked to active, not idle to active
+var closedTabs = {};  // Tabs that have been closed via autoclose
 
 // Get duration and threshold when chrome starts
 chrome.storage.sync.get(["duration", "threshold"], function(settings) {
@@ -118,6 +119,7 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
     if (numTabs > threshold) {
         chrome.tabs.remove(tabId);
         numTabs--;
+        addToClosedTabs(tabId);
     }
 });
 

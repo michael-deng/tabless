@@ -120,6 +120,21 @@ function stopAutoclose() {
 }
 
 /**
+ * Add a newly-closed tab to history
+ *
+ * @param {number} tabId - The Id of the closed tab
+ */
+ function addToClosedTabs(tabId) {
+    closedTabs[tabId] = {};
+    closedTabs[tabId] = tabs[tabId];
+    closedTabs[tabId]["Closed"] = Date.now();
+
+    chrome.runtime.sendMessage({text: "addHistory", tabId: tabId}, function(response) {
+        console.log("got addHistory response");
+    });
+ }
+
+/**
  * Animate favicon if a tab is about to be deleted
  */
 function changeFavicon() {

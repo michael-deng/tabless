@@ -31,7 +31,7 @@ describe('background page', function() {
                 },
                 Pinned: false
             }
-        }
+        };
 
         aboveThresholdTabs = {
             80: {
@@ -82,7 +82,7 @@ describe('background page', function() {
                 },
                 Pinned: false
             }
-        }
+        };
 
         // Set up mocks
         chrome.storage.sync.get.yields([]);
@@ -125,6 +125,7 @@ describe('background page', function() {
                     sinon.stub(window, 'startAutoclose');
                     sinon.stub(window, 'unpauseAutoclose');
                     sinon.stub(window, 'stopAutoclose');
+                    sinon.stub(window, 'addToClosedTabs');
 
                     const script = new vm.Script(fs.readFileSync('src/background.js'));
                     jsdom.evalVMScript(window, script);
@@ -296,6 +297,17 @@ describe('background page', function() {
 
         sinon.assert.calledOnce(chrome.runtime.sendMessage);
         sinon.assert.calledOnce(chrome.alarms.clearAll);
+    });
+
+    it('should add a tab to history if addToClosedTabs is called', function() {
+        window.tabs = belowThresholdTabs;
+
+        window.addToClosedTabs.restore();
+
+        window.addToClosedTabs(80);
+
+        sinon.assert.calledOnce(chrome.runtime.sendMessage);
+        assert.equal(Object.keys(window.closedTabs).length, 1);
     });
 });
 

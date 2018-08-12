@@ -8,6 +8,7 @@ var vm = require('vm');
 var window;
 var belowThresholdTabs;
 var aboveThresholdTabs;
+var closedTabs = {};
 
 describe('modal page with less than threshold tabs', function() {
     
@@ -31,11 +32,12 @@ describe('modal page with less than threshold tabs', function() {
                 },
                 Pinned: false
             }
-        }
+        };
 
         // Set up mocks
         chrome.runtime.getBackgroundPage.yields({
             tabs: belowThresholdTabs,
+            closedTabs: closedTabs,
             duration: '300000',
             threshold: '5'
         });
@@ -103,6 +105,21 @@ describe('modal page with less than threshold tabs', function() {
         chrome.runtime.onMessage.dispatch({text: 'addTab', tabId: '82'}, null, null);
 
         assert.equal(window.document.getElementById('tabs-table').rows.length, 3);
+    });
+
+    it('should handle addHistory command', function() {
+        window.bg.closedTabs['82'] = {
+            Tab: {
+                favIconUrl: 'https://www.google.ru/favicon.ico',
+                id: 82,
+                title: 'Google'
+            },
+            Pinned: false
+        };
+
+        chrome.runtime.onMessage.dispatch({text: 'addHistory', tabId: '82'}, null, null);
+
+        assert.equal(window.document.getElementById('history-table').rows.length, 1);
     });
 
     it('should handle updateTab command', function() {
@@ -240,11 +257,12 @@ describe('modal page with more than threshold tabs', function() {
                 },
                 Pinned: false
             }
-        }
+        };
 
         // Set up mocks
         chrome.runtime.getBackgroundPage.yields({
             tabs: aboveThresholdTabs,
+            closedTabs: closedTabs,
             duration: '300000',
             threshold: '5'
         });

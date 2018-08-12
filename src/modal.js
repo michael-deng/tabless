@@ -23,8 +23,15 @@ chrome.runtime.getBackgroundPage(function(background) {
     var table = document.getElementById('tabs-table');
 
     // Populate the tabs table row by row
-    for (let key in bg.tabs) {
+    for (let key of Object.keys(bg.tabs).sort(function(a,b){return bg.tabs[a]['Created']-bg.tabs[b]['Created']})) {
         addTabRow(key, table);
+    }
+
+    var historyTable = document.getElementById('history-table');
+
+    // Populate the history table row by row
+    for (let key of Object.keys(bg.closedTabs).sort(function(a,b){return bg.closedTabs[a]['Closed']-bg.closedTabs[b]['Closed']})) {
+        addHistoryRow(key, historyTable);
     }
 
     // Populate "Settings" tab with information from background
@@ -41,6 +48,12 @@ chrome.runtime.getBackgroundPage(function(background) {
             var table = document.getElementById('tabs-table');
 
             addTabRow(msg.tabId, table);
+        }
+
+        else if (msg.text == "addHistory") {
+            var table = document.getElementById('history-table');
+
+            addHistoryRow(msg.tabId, table);
         }
 
         else if (msg.text == "updateTab") {
@@ -275,6 +288,7 @@ chrome.runtime.getBackgroundPage(function(background) {
     // Listens for click event that opens the "Settings" page
     document.getElementById("settings-open-btn").firstChild.addEventListener("click", function() {
         settings = document.getElementById("settings");
+        console.log(settings);
         settings.style.left = "0px";
         settings.style.boxShadow = "0 0 50px rgba(0,0,0,0.3)";
     });
@@ -284,6 +298,20 @@ chrome.runtime.getBackgroundPage(function(background) {
         settings = document.getElementById("settings");
         settings.style.left = "-300px";
         settings.style.boxShadow = "none";
+    });
+
+    // Listens for click event that opens the "Settings" page
+    document.getElementById("history-open-btn").firstChild.addEventListener("click", function() {
+        hist = document.getElementById("history");
+        hist.style.left = "0px";
+        hist.style.boxShadow = "0 0 50px rgba(0,0,0,0.3)";
+    });
+
+    // Listens for click event that closes the "history" page
+    document.getElementById("history-close-btn").firstChild.addEventListener("click", function() {
+        hist = document.getElementById("history");
+        hist.style.left = "-300px";
+        hist.style.boxShadow = "none";
     });
 
     // Listens for click event that closes the modal

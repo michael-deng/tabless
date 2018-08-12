@@ -12,7 +12,7 @@ body {
     border-bottom: 2px dashed #DDDDDD;
 }
 
-#title, #settings-open-btn, #modal-close-btn {
+#title, #left-btns, #modal-close-btn {
     float: left;
     height: 60px;
     width: 160px;
@@ -32,6 +32,13 @@ body {
 #settings-open-btn {
     padding-left: 20px;
     color: #888888;
+    float: left;
+}
+
+#history-open-btn {
+    padding-left: 10px;
+    color: #888888;
+    float: left;
 }
 
 #modal-close-btn {
@@ -40,12 +47,12 @@ body {
     color: #888888;
 }
 
-#settings-open-btn i, #modal-close-btn i {
+#settings-open-btn i, #history-open-btn i, #modal-close-btn i {
     padding: 5px;
     cursor: pointer;
 }
 
-#settings-open-btn i:hover, #modal-close-btn i:hover {
+#settings-open-btn i:hover, #history-open-btn i:hover, #modal-close-btn i:hover {
     color: #333333;
 }
 
@@ -93,8 +100,10 @@ div.active {
 
 /* Tabs list */
 
-#tabs {
+#tabs-body {
     padding: 10px 20px;
+    height: 540px;
+    overflow-y: auto;
 }
 
 #pin-all, #unpin-all {
@@ -204,7 +213,7 @@ div.active {
     padding-left: 20px;
 }
 
-#settings #settings-close-btn i {
+#settings-close-btn i {
     padding: 5px;
     cursor: pointer;
 }
@@ -213,13 +222,13 @@ div.active {
     color: #333333;
 }
 
-#settings-form {
-    padding: 20px 20px;
+#settings-body {
+    padding: 10px 20px;
 }
 
 #settings-form label {
     display: inline-block;
-    width: 120px;
+    width: 100px;
 }
 
 body #settings-form input {
@@ -339,10 +348,90 @@ body #settings-form input {
 
 
 
-/* 
-Design by echojanz: 
-http://dribbble.com/shots/1039179-Slide-Button?list=users
-*/
+/* History page */
+
+#history {
+    width: 300px;
+    position: fixed;
+    top: 0;
+    left: -300px;
+    transition: 0.2s;
+    background: white;
+}
+
+#history-title, #history-close-btn {
+    float: left;
+    height: 60px;
+    width: 100px;
+    line-height: 60px;
+    font-size: 1.2em;
+}
+
+#history-title {
+    text-align: center;
+    font-weight: 500;
+}
+
+#history-close-btn {
+    color: #888888;
+    padding-left: 20px;
+}
+
+#history-close-btn i {
+    padding: 5px;
+    cursor: pointer;
+}
+
+#history-close-btn i:hover {
+    color: #333333;
+}
+
+#history-body {
+    padding: 10px 20px;
+    height: 540px;
+    overflow-y: auto;
+}
+
+#history-table {
+    /* avoid an excessively wide status text */
+    white-space: pre;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 100%;
+}
+
+#history-table tr td {
+    min-width: 24px;  /* Prevent history table columns from changing slightly when materializing initial images */
+    padding: 5px;
+    overflow: auto;
+}
+
+#history-table .favicon {
+    height: 20px;
+    width: 20px;
+    border-radius: 2px;
+}
+
+.history-title {
+    white-space: pre;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-size: 0.8em;
+    width: 210px;
+    cursor: pointer;
+}
+
+.history-title:hover {
+    color: #000000;
+}
+
+.history-time-closed {
+    float: left;
+    margin-top: 3px;
+    font-size: 0.7em;
+    color: #888888;
+    cursor: default;
+}
 
 /*
 Technical inspiration from tutorial by Hugo Giraudel:
@@ -350,7 +439,6 @@ https://tympanus.net/codrops/2012/09/13/button-switches-with-checkboxes-and-css3
 */
 
 /* Font Awesome */
-
 
 [class*="fontawesome-"]:before {
     font-family: 'FontAwesome', sans-serif;

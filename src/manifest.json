@@ -23,6 +23,5 @@
         "modal.html",
         "modal.css",
         "modal.js"
-    ],
-    "content_security_policy":"script-src 'self' https://use.fontawesome.com/5ea7d79d6a.js; object-src 'self'"
+    ]
 }

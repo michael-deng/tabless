@@ -42,6 +42,9 @@ function addOrUpdateTab(tabId, tab, duration) {
 
         // Have to populate tabs[tabId] fields before updating UI
         chrome.runtime.sendMessage({text: "addTab", tabId: tabId}, function(response) {
+            if (chrome.runtime.lastError) {
+                console.log('Whoops...' + chrome.runtime.lastError.message);
+            }
             console.log("got addTab response");
         });
     } else {
@@ -50,6 +53,9 @@ function addOrUpdateTab(tabId, tab, duration) {
         tabs[tabId]["Tab"] = tab;
 
         chrome.runtime.sendMessage({text: "updateTab", tabId: tabId}, function(response) {
+            if (chrome.runtime.lastError) {
+                console.log('Whoops...' + chrome.runtime.lastError.message);
+            }
             console.log("got updateTab response");
         });
     }
@@ -74,6 +80,9 @@ function startAutoclose() {
     }
 
     chrome.runtime.sendMessage({text: "startAll"}, function(response) {
+        if (chrome.runtime.lastError) {
+            console.log('Whoops...' + chrome.runtime.lastError.message);
+        }
         console.log("got startAll response in startAutoclose");
     });
 }
@@ -98,6 +107,9 @@ function unpauseAutoclose() {
     }
 
     chrome.runtime.sendMessage({text: "startAll"}, function(response) {
+        if (chrome.runtime.lastError) {
+            console.log('Whoops...' + chrome.runtime.lastError.message);
+        }
         console.log("got startAll response in unpauseAutoclose");
     });
 }
@@ -120,6 +132,9 @@ function stopAutoclose() {
     lastStopDate = Date.now();
 
     chrome.runtime.sendMessage({text: "stopAll"}, function(response) {
+        if (chrome.runtime.lastError) {
+            console.log('Whoops...' + chrome.runtime.lastError.message);
+        }
         console.log("got stopAll response in stopAutoClose");
     });
 }
@@ -135,6 +150,9 @@ function stopAutoclose() {
     closedTabs[tabId]["Closed"] = Date.now();
 
     chrome.runtime.sendMessage({text: "addHistory", tabId: tabId}, function(response) {
+        if (chrome.runtime.lastError) {
+            console.log('Whoops...' + chrome.runtime.lastError.message);
+        }
         console.log("got addHistory response");
     });
  }
@@ -155,6 +173,9 @@ function stopAutoclose() {
     chrome.alarms.clear(activeTabId.toString());
 
     chrome.runtime.sendMessage({text: "setActiveTab", newActiveTabId: activeTabId, oldActiveTabId: prevActiveTabId}, function(response) {
+        if (chrome.runtime.lastError) {
+            console.log('Whoops...' + chrome.runtime.lastError.message);
+        }
         console.log("got setActiveTab response in onActivated");
     });
 
@@ -167,6 +188,9 @@ function stopAutoclose() {
         chrome.alarms.create(prevActiveTabId.toString(), {when: tabs[prevActiveTabId]["End"]});
 
         chrome.runtime.sendMessage({text: "start", tabId: prevActiveTabId}, function(response) {
+            if (chrome.runtime.lastError) {
+                console.log('Whoops...' + chrome.runtime.lastError.message);
+            }
             console.log("got start response in onActivated");
         });
     }

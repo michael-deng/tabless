@@ -96,6 +96,9 @@ chrome.tabs.onRemoved.addListener(function(tabId, tab) {
     // Have to delete UI element first before deleting tabs[tabId],
     // so we put the data-deletion code in the callback function
     chrome.runtime.sendMessage({text: "removeTab", tabId: tabId}, function(response) {
+        if (chrome.runtime.lastError) {
+            console.log('Whoops...' + chrome.runtime.lastError.message);
+        }
         console.log("got removeTab response");
     });
 
@@ -146,6 +149,9 @@ chrome.browserAction.onClicked.addListener(function(tab) {
                     "you aren't allowed to open Tabless. If not, let us know what's happening and we'll get to the bottom of this!");
     } else {
         chrome.tabs.sendMessage(tab.id, {text: "toggle"}, function(response) {
+            if (chrome.runtime.lastError) {
+                console.log('Whoops...' + chrome.runtime.lastError.message);
+            }
 
             // If we get a response, it means the content script is running and received our message
             if (response) {

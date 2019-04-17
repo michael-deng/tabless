@@ -17,6 +17,7 @@ The structure of the modalClosedTabs dictionary:
 
 modalClosedTabs = {
     tabId: {
+        "Row": HTML element,
         "Timer": HTML element,
         "TimerId": integer (need this to clear timers),
     }
@@ -30,6 +31,7 @@ modalClosedTabs = {
 
 var bg;  // The window of the background page
 var modalTabs = {};
+var modalClosedTabs = {};
 
 chrome.runtime.getBackgroundPage(function(background) {
     bg = background;

@@ -93,6 +93,9 @@ function addHistoryRow(key, table) {
     var cell1 = row.insertCell(0);
     var cell2 = row.insertCell(1);
 
+    modalClosedTabs[key] = {};
+    modalClosedTabs[key]["Row"] = row;
+
     // Set the favicon
     var favIconUrl = tab.favIconUrl;
     if (favIconUrl) {
@@ -115,6 +118,9 @@ function addHistoryRow(key, table) {
     var title = cell2.getElementsByTagName("div")[0];
     title.addEventListener("click", function() {
         chrome.tabs.create({url: tab.url});
+        var row = modalClosedTabs[tab.id]["Row"];
+        row.parentNode.removeChild(row);
+        delete bg.closedTabs[tab.id];
     });
 }
 

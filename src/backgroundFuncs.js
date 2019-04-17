@@ -7,7 +7,7 @@
  */
 function addOrUpdateTab(tabId, tab, duration) {
     if (!(tabId in tabs)) {
-        console.log("addOrUpdateTab started");
+        console.log("addOrUpdateTab started - if statement");
 
         var now = Date.now();
 
@@ -23,15 +23,19 @@ function addOrUpdateTab(tabId, tab, duration) {
             tabs[tabId]["Tab"] = tab;
             tabs[tabId]["Pinned"] = false;
             tabs[tabId]["Created"] = now;
-            tabs[tabId]["End"] = now + duration;
-            chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
+            if (tabId != activeTabId) {
+                tabs[tabId]["End"] = now + duration;
+                chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
+            }
         } else {
             tabs[tabId] = {};
             tabs[tabId]["Tab"] = tab;
             tabs[tabId]["Pinned"] = false;
             tabs[tabId]["Created"] = now;
-            tabs[tabId]["End"] = now + duration;
-            chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
+            if (tabId != activeTabId) {
+                tabs[tabId]["End"] = now + duration;
+                chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
+            }
         }
 
         numTabs = Object.keys(tabs).length;
@@ -41,6 +45,7 @@ function addOrUpdateTab(tabId, tab, duration) {
             console.log("got addTab response");
         });
     } else {
+        console.log("addOrUpdateTab started - else statement");
         // Update an existing tab
         tabs[tabId]["Tab"] = tab;
 
@@ -132,6 +137,39 @@ function stopAutoclose() {
     chrome.runtime.sendMessage({text: "addHistory", tabId: tabId}, function(response) {
         console.log("got addHistory response");
     });
+ }
+
+ /**
+ * Activate a tab
+ *
+ * @param {number} tabId - The Id of the newly activated tab
+ */
+ function activateTab(tabId) {
+    var prevActiveTabId = activeTabId;
+    activeTabId = tabId;
+
+    if (tabs[activeTabId]) {
+        tabs[activeTabId]["End"] = null;
+    }
+
+    chrome.alarms.clear(activeTabId.toString());
+
+    chrome.runtime.sendMessage({text: "setActiveTab", newActiveTabId: activeTabId, oldActiveTabId: prevActiveTabId}, function(response) {
+        console.log("got setActiveTab response in onActivated");
+    });
+
+    // onActivated might be called before onUpdated (when the tab is first created),
+    // so if the tab doesn't exist in the tabs global object yet, don't do anything
+    // We also don't need to do anything if we're below the threshold
+    if (prevActiveTabId && tabs[prevActiveTabId] && !tabs[prevActiveTabId]["Pinned"] && Object.keys(tabs).length > threshold) {
+
+        tabs[prevActiveTabId]["End"] = Date.now() + duration;
+        chrome.alarms.create(prevActiveTabId.toString(), {when: tabs[prevActiveTabId]["End"]});
+
+        chrome.runtime.sendMessage({text: "start", tabId: prevActiveTabId}, function(response) {
+            console.log("got start response in onActivated");
+        });
+    }
  }
 
 /**

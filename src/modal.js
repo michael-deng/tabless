@@ -3,17 +3,19 @@ The structure of the modalTabs dictionary, this keeps per-modal info for tabs:
 
 modalTabs = {
     tabId: {
+        "Row": HTML element,
         "Timer": HTML element,
         "TimerId": integer (need this to clear timers),
-        "Pin": HTML element
+        "Pin": HTML element,
     }
 }
 */
 
 /*
-The structure of the historyTabs dictionary:
+TODO: THIS DOESNT EXIST RIGHT NOW
+The structure of the modalClosedTabs dictionary:
 
-historyTabs = {
+modalClosedTabs = {
     tabId: {
         "Timer": HTML element,
         "TimerId": integer (need this to clear timers),
@@ -93,7 +95,7 @@ chrome.runtime.getBackgroundPage(function(background) {
         else if (msg.text == "removeTab") {
             // Remove row
             var tabId = msg.tabId;
-            var row = modalTabs[tabId]["Timer"].parentNode.parentNode;
+            var row = modalTabs[tabId]["Row"];
             row.parentNode.removeChild(row);
 
             // Clear UI timer
@@ -125,6 +127,22 @@ chrome.runtime.getBackgroundPage(function(background) {
                     clearInterval(modalTabs[tabId]["TimerId"]);
                     modalTabs[tabId]["Timer"].innerHTML = "Below threshold";
                 }
+            }
+        }
+
+        else if (msg.text == "setActiveTab") {
+            var oldActiveTabId = msg.oldActiveTabId;
+            var newActiveTabId = msg.newActiveTabId;
+
+            // The old tab might be deleted
+            if (modalTabs[oldActiveTabId] && Object.keys(bg.tabs).length <= bg.threshold) {
+                modalTabs[oldActiveTabId]["Timer"].innerHTML = "Below threshold";
+            }
+
+            // The new tab might have been just created and not added to the modalTabs object yet
+            if (modalTabs[newActiveTabId]) {
+                clearInterval(modalTabs[newActiveTabId]["TimerId"]);
+                modalTabs[newActiveTabId]["Timer"].innerHTML = "Active";
             }
         }
     });

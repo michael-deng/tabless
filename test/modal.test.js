@@ -121,7 +121,7 @@ describe('modal page with less than threshold tabs', function() {
 
         chrome.runtime.onMessage.dispatch({text: 'addHistory', tabId: '82'}, null, null);
 
-        sinon.assert.calledOnce(window.countup);
+        sinon.assert.calledThrice(window.countup);
         assert.equal(window.document.getElementById('history-table').rows.length, 1);
     });
 
@@ -157,6 +157,16 @@ describe('modal page with less than threshold tabs', function() {
         chrome.runtime.onMessage.dispatch({text: 'stopAll'}, null, null);
 
         sinon.assert.calledTwice(window.clearInterval);
+    });
+
+    it('should handle setActiveTab command', function() {
+        chrome.runtime.onMessage.dispatch({
+            text: 'setActiveTab',
+            oldActiveTabId: '80',
+            newActiveTabId: '81',
+        }, null, null);
+
+        sinon.assert.calledOnce(window.clearInterval);
     });
 
     it('should update the min open tabs count correctly', function() {

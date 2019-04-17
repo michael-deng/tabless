@@ -126,6 +126,7 @@ describe('background page', function() {
                     sinon.stub(window, 'unpauseAutoclose');
                     sinon.stub(window, 'stopAutoclose');
                     sinon.stub(window, 'addToClosedTabs');
+                    sinon.stub(window, 'activateTab');
 
                     const script = new vm.Script(fs.readFileSync('src/background.js'));
                     jsdom.evalVMScript(window, script);
@@ -154,6 +155,7 @@ describe('background page', function() {
         sinon.assert.calledOnce(chrome.tabs.onUpdated.addListener);
         sinon.assert.calledOnce(chrome.tabs.onReplaced.addListener);
         sinon.assert.calledOnce(chrome.tabs.onActivated.addListener);
+        sinon.assert.calledOnce(chrome.windows.onFocusChanged.addListener);
         sinon.assert.calledOnce(chrome.tabs.onRemoved.addListener);
         sinon.assert.calledOnce(chrome.alarms.onAlarm.addListener);
         sinon.assert.calledOnce(chrome.browserAction.onClicked.addListener);
@@ -168,21 +170,22 @@ describe('background page', function() {
         sinon.assert.calledThrice(window.addOrUpdateTab);
     });
 
-    it('should not reset timer/alarm when onActivated is called below threshold ', function() {
+    it('should call activateTab when onActivated is called', function() {
         window.tabs = belowThresholdTabs;
 
         chrome.tabs.onActivated.dispatch({tabId: 80});
 
-        sinon.assert.notCalled(chrome.alarms.create);
+        sinon.assert.calledOnce(window.activateTab);
     });
 
-    it('should reset timer/alarm when onActivated is called above threshold', function() {
+    it('should call activateTab when onFocused is called', function() {
         window.tabs = aboveThresholdTabs;
 
-        chrome.tabs.onActivated.dispatch({tabId: 80});
+        chrome.tabs.get(80, function(tab) {
+            chrome.windows.onFocusChanged.dispatch({windowId: tab.windowId});
 
-        sinon.assert.calledOnce(chrome.runtime.sendMessage);
-        sinon.assert.calledOnce(chrome.alarms.create);
+            sinon.assert.calledOnce(window.activateTab);
+        });
     });
 
     it('should remove tab when on onRemoved is called below threshold', function() {
@@ -308,6 +311,30 @@ describe('background page', function() {
 
         sinon.assert.calledOnce(chrome.runtime.sendMessage);
         assert.equal(Object.keys(window.closedTabs).length, 1);
+    });
+
+    it('should freeze the newly activated tab when activateTab is called', function() {
+        window.tabs = belowThresholdTabs;
+
+        window.activateTab.restore();
+
+        window.activateTab(80);
+
+        sinon.assert.calledOnce(chrome.alarms.clear);
+        sinon.assert.calledOnce(chrome.runtime.sendMessage);
+    });
+
+    it('should freeze the newly activated tab when activateTab is called and restart the alarm for the prev active tab', function() {
+        window.tabs = aboveThresholdTabs;
+        window.activeTabId = 80;
+
+        window.activateTab.restore();
+
+        window.activateTab(81);
+
+        sinon.assert.calledOnce(chrome.alarms.clear);
+        sinon.assert.calledTwice(chrome.runtime.sendMessage);
+        sinon.assert.calledOnce(chrome.alarms.create);
     });
 });
 

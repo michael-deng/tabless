@@ -5,8 +5,6 @@
  * @param {object} table - The UI table containing all the tabs
  */
 function addTabRow(key, table) {
-    console.log(key);
-    console.log(bg.tabs[key]);
     var tab = bg.tabs[key]["Tab"];
     var pinned = bg.tabs[key]["Pinned"];
     var created = bg.tabs[key]["Created"];
@@ -39,7 +37,7 @@ function addTabRow(key, table) {
     // Set up the redirect link on the title
     var title = cell2.getElementsByTagName("div")[0];
     title.addEventListener("click", function() {
-        activateTab(key);
+        switchToTab(key);
     });
 
     // Set the time elapsed
@@ -53,18 +51,25 @@ function addTabRow(key, table) {
     // Set the tab pin icon
     cell3.innerHTML = "<div class=\"tab-pin\"><img title=\"Pin this tab\" src=\"assets\/tabless_pin_red.png\"><img title=\"Pin this tab\" src=\"assets\/tabless_pin_grey.png\"></div>";
 
-    if (!pinned) {
-        cell3.getElementsByTagName("img")[0].style.display = "none";
-        // cell3.innerHTML = "<img src=\"assets\/tabless_pin_red.png\">";
-        if (Object.keys(bg.tabs).length > bg.threshold) {
-            modalTabs[key]["TimerId"] = countdown(end, timer);
+    if (key == bg.activeTabId) {
+        timer.innerHTML = "Active";
+        if (!pinned) {
+            cell3.getElementsByTagName("img")[0].style.display = "none";
         } else {
-            timer.innerHTML = "Below threshold";
+            cell3.getElementsByTagName("img")[1].style.display = "none";
         }
     } else {
-        cell3.getElementsByTagName("img")[1].style.display = "none";
-        // cell3.innerHTML = "<img src=\"assets\/tabless_pin_grey.png\">";
-        timer.innerHTML = "Pinned";
+        if (!pinned) {
+            cell3.getElementsByTagName("img")[0].style.display = "none";
+            if (Object.keys(bg.tabs).length > bg.threshold) {
+                modalTabs[key]["TimerId"] = countdown(end, timer);
+            } else {
+                timer.innerHTML = "Below threshold";
+            }
+        } else {
+            cell3.getElementsByTagName("img")[1].style.display = "none";
+            timer.innerHTML = "Pinned";
+        }
     }
 
     // Set up the pin/unpin button
@@ -119,7 +124,7 @@ function addHistoryRow(key, table) {
  *
  * @param {number} tabId - The Id of the tab we're activating
  */
- function activateTab(tabId) {
+ function switchToTab(tabId) {
 
     // Close the tabs modal
     chrome.tabs.getCurrent(function(tab) {

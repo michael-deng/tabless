@@ -30,6 +30,7 @@ var lastStopDate;  // The date when stopAutoClose() is last called, so when we c
 var locked = false;  // We use this locked variable to ensure we only call unpauseAutoclose 
                      // when the idleState changes from locked to active, not idle to active
 var closedTabs = {};  // Tabs that have been closed via autoclose
+var activeTabId;  // The currently active tab's id
 
 // Get duration and threshold when chrome starts
 chrome.storage.sync.get(["duration", "threshold"], function(settings) {
@@ -70,20 +71,19 @@ chrome.tabs.onReplaced.addListener(function(addedTabId, removedTabId) {
 
 // Reset alarm and timer if a tab is activated
 chrome.tabs.onActivated.addListener(function(activeInfo) {
-    var tabId = activeInfo["tabId"];
+    activateTab(activeInfo['tabId']);
+});
 
-    // onActivated might be called before onUpdated (when the tab is first created), 
-    // so if the tab doesn't exist in the tabs global object yet, don't do anything
-    // We also don't need to do anything if we're below the threshold
-    if (tabs[tabId] && !tabs[tabId]["Pinned"] && Object.keys(tabs).length > threshold) {
-        
-        tabs[tabId]["End"] = Date.now() + duration;
-
-        // New alarm automatically clears the previous one
-        chrome.alarms.create(tabId.toString(), {when: tabs[tabId]["End"]});
-
-        chrome.runtime.sendMessage({text: "start", tabId: tabId}, function(response) {
-            console.log("got start response in onActivated");
+// When window changes, activate the focused tab of that window
+chrome.windows.onFocusChanged.addListener(function(windowId) {
+    if (windowId != chrome.windows.WINDOW_ID_NONE) {
+        chrome.tabs.query({
+            active: true,
+            windowId: windowId,
+        }, function(tabs) {
+            if (tabs.length > 0) {
+                activateTab(tabs[0]['id']);
+            }
         });
     }
 });

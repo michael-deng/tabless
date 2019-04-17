@@ -166,6 +166,11 @@ function stopAutoclose() {
     var prevActiveTabId = activeTabId;
     activeTabId = tabId;
 
+    // Don't do anything if we re-activating the current active tab
+    if (activeTabId == prevActiveTabId) {
+        return
+    }
+
     if (tabs[activeTabId]) {
         tabs[activeTabId]["End"] = null;
     }

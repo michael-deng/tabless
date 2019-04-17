@@ -72,6 +72,12 @@ chrome.runtime.getBackgroundPage(function(background) {
         else if (msg.text == "updateTab") {
             var tabId = msg.tabId;
 
+            // Sometimes updateTab gets called before the tab is fully added (like if you open and close a tab immediately),
+            // in which case we should just not do anything
+            if (!bg.tabs[tabId]) {
+                return;
+            }
+
             var cell1 = modalTabs[tabId]["Row"].cells[0];
             var cell2 = modalTabs[tabId]["Row"].cells[1];
 

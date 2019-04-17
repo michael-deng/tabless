@@ -10,6 +10,16 @@ tabs = {
     }
 }
 
+closedTabs = {
+    tabId: {
+        "Tab": object,
+        "Pinned": boolean,
+        "Created": object,
+        "End": object,
+        "Closed": object, TODO: VERIFY IF WE CAN USE END INSTEAD OF CLOSED
+    }
+}
+
 The two variables stored in chrome storage are duration and threshold
 because they need to persist over multiple chrome sessions.
 */

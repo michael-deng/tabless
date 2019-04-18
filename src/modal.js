@@ -143,12 +143,12 @@ chrome.runtime.getBackgroundPage(function(background) {
             var newActiveTabId = msg.newActiveTabId;
 
             // The old tab might be deleted
-            if (modalTabs[oldActiveTabId] && Object.keys(bg.tabs).length <= bg.threshold) {
+            if (modalTabs[oldActiveTabId] && !bg.tabs[oldActiveTabId]["Pinned"] && Object.keys(bg.tabs).length <= bg.threshold) {
                 modalTabs[oldActiveTabId]["Timer"].innerHTML = "Below threshold";
             }
 
             // The new tab might have been just created and not added to the modalTabs object yet
-            if (modalTabs[newActiveTabId]) {
+            if (modalTabs[newActiveTabId] && !bg.tabs[newActiveTabId]["Pinned"]) {
                 clearInterval(modalTabs[newActiveTabId]["TimerId"]);
                 modalTabs[newActiveTabId]["Timer"].innerHTML = "Active";
             }

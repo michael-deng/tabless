@@ -51,24 +51,17 @@ function addTabRow(key, table) {
     // Set the tab pin icon
     cell3.innerHTML = "<div class=\"tab-pin\"><img title=\"Pin this tab\" src=\"assets\/tabless_pin_red.png\"><img title=\"Pin this tab\" src=\"assets\/tabless_pin_grey.png\"></div>";
 
-    if (key == bg.activeTabId) {
-        timer.innerHTML = "Active";
-        if (!pinned) {
-            cell3.getElementsByTagName("img")[0].style.display = "none";
-        } else {
-            cell3.getElementsByTagName("img")[1].style.display = "none";
-        }
+    if (pinned) {
+        cell3.getElementsByTagName("img")[1].style.display = "none";
+        timer.innerHTML = "Pinned";
     } else {
-        if (!pinned) {
-            cell3.getElementsByTagName("img")[0].style.display = "none";
-            if (Object.keys(bg.tabs).length > bg.threshold) {
-                modalTabs[key]["TimerId"] = countdown(end, timer);
-            } else {
-                timer.innerHTML = "Below threshold";
-            }
+        cell3.getElementsByTagName("img")[0].style.display = "none";
+        if (key == bg.activeTabId) {
+            timer.innerHTML = "Active"
+        } else if (Object.keys(bg.tabs).length > bg.threshold) {
+            modalTabs[key]["TimerId"] = countdown(end, timer);
         } else {
-            cell3.getElementsByTagName("img")[1].style.display = "none";
-            timer.innerHTML = "Pinned";
+            timer.innerHTML = "Below threshold";
         }
     }
 
@@ -161,7 +154,9 @@ function togglePin(tabId) {
         pinContainer.children[0].style.display = "none";
         pinContainer.children[1].style.display = "initial";
         bg.tabs[tabId]["Pinned"] = false;
-        if (Object.keys(bg.tabs).length > bg.threshold) { 
+        if (tabId == bg.activeTabId) {
+            timer.innerHTML = "Active";
+        } else if (Object.keys(bg.tabs).length > bg.threshold) {
             bg.tabs[tabId]["End"] = Date.now() + bg.duration;
             chrome.alarms.create(tabId.toString(), {when: bg.tabs[tabId]["End"]});
             modalTabs[tabId]["TimerId"] = countdown(bg.tabs[tabId]["End"], timer);

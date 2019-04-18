@@ -12,14 +12,12 @@ modalTabs = {
 */
 
 /*
-TODO: THIS DOESNT EXIST RIGHT NOW
-The structure of the modalClosedTabs dictionary:
+The structure of the modalClosedTabs dictionary, which keeps per-modal info for closed tabs:
 
 modalClosedTabs = {
     tabId: {
         "Row": HTML element,
         "Timer": HTML element,
-        "TimerId": integer (need this to clear timers),
     }
 }
 */

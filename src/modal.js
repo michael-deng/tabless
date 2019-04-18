@@ -299,7 +299,7 @@ chrome.runtime.getBackgroundPage(function(background) {
                     chrome.alarms.clearAll();  // Might have to add callback in parameter
                     var end = Date.now() + bg.duration;
                     for (key in bg.tabs) {
-                        if (!bg.tabs[key]["Pinned"]) {
+                        if (!bg.tabs[key]["Pinned"] && key != bg.activeTabId) {
                             bg.tabs[key]["End"] = end;
                             chrome.alarms.create(key.toString(), {when: end});
                             clearInterval(modalTabs[key]["TimerId"]);
@@ -311,7 +311,7 @@ chrome.runtime.getBackgroundPage(function(background) {
                     console.log("Stop autoclose in settings");
                     chrome.alarms.clearAll();
                     for (key in bg.tabs) {
-                        if (!bg.tabs[key]["Pinned"]) {
+                        if (!bg.tabs[key]["Pinned"] && key != bg.activeTabId) {
                             clearInterval(modalTabs[key]["TimerId"]);
                             modalTabs[key]["Timer"].innerHTML = "Below threshold";  // Update the timers UI in the "Tabs" tab
                         }

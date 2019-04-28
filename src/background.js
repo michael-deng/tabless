@@ -153,11 +153,7 @@ var injecting = false;
 // Toggle modal
 chrome.browserAction.onClicked.addListener(function(tab) {
 
-    // Chrome doesn't let us to inject scripts into chrome:// or chrome-extension:// urls
-    if (tab.url.startsWith("chrome://") || tab.url.startsWith("chrome-extension://")) {
-        alert("Uh oh, Tabless couldn't start on this page. If you're on a \"chrome://\" or \"chrome-extension://\" page, " + 
-                    "you aren't allowed to open Tabless. If not, let us know what's happening and we'll get to the bottom of this!");
-    } else {
+
         chrome.tabs.sendMessage(tab.id, {text: "toggle"}, function(response) {
             if (chrome.runtime.lastError) {
                 console.log('Whoops...' + chrome.runtime.lastError.message);
@@ -174,12 +170,23 @@ chrome.browserAction.onClicked.addListener(function(tab) {
                     console.log("Content script not there, inject jquery, content script, and css");
                     injecting = true;
                     chrome.tabs.executeScript(tab.id, {file: "jquery.min.js"}, function() {
+                        if (chrome.runtime.lastError) {
+                            console.log("injection error");
+                            chrome.notifications.create('', {
+                                type: "basic",
+                                iconUrl: "assets/tabless_icon_2.png",
+                                title: "Tabless doesn't work on this page",
+                                message: "Try again on another page."
+                            }, function(){
+                                console.log('created notification');
+                            });
+                            injecting = false;
+                            return
+                        }
                         chrome.tabs.executeScript(tab.id, {file: "tabless-extension-content-script.js", runAt: "document_start"}, function() {
                             console.log("injected content script");
                             chrome.tabs.sendMessage(tab.id, {text: "toggle"});
-                            chrome.tabs.insertCSS(tab.id, {file: "tabless-extension-iframe-styles.css"}, function() {
-                                // console.log('CSS inserted');
-                            });
+                            chrome.tabs.insertCSS(tab.id, {file: "tabless-extension-iframe-styles.css"});
                             injecting = false;
                         });
                     });
@@ -188,5 +195,4 @@ chrome.browserAction.onClicked.addListener(function(tab) {
                 }
             }
         });
-    }
 });

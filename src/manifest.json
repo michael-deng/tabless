@@ -6,7 +6,7 @@
     "version": "0.0.0.3",
 
     "browser_action": {
-        "default_icon": "assets/tabless_icon.png"
+        "default_icon": "assets/tabless_icon_2.png"
     },
     "background": {
         "scripts": ["backgroundFuncs.js", "background.js"]
@@ -17,7 +17,8 @@
         "alarms",
         "idle",
         "https://ajax.googleapis.com/",
-        "storage"
+        "storage",
+        "notifications"
     ],
     "web_accessible_resources": [
         "modal.html",

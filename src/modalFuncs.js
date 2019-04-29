@@ -42,7 +42,7 @@ function addTabRow(key, table) {
 
     // Set the time elapsed
     var timeElapsed = cell2.getElementsByClassName("tab-time-elapsed")[0];
-    countup(created, timeElapsed);
+    modalTabs[key]["CountUpTimerId"] = countup(created, timeElapsed);
 
     // Set the timer
     var timer = cell2.getElementsByClassName("tab-timer")[0];
@@ -105,7 +105,7 @@ function addHistoryRow(key, table) {
     cell2.innerHTML = "<div class=\"history-title\">" + tab.title + "</div><div class=\"history-time-closed\"></div>";
 
     var timer = cell2.getElementsByClassName("history-time-closed")[0];
-    countup(bg.closedTabs[key]["Closed"], timer);
+    modalClosedTabs[key]["CountUpTimerId"] = countup(bg.closedTabs[key]["Closed"], timer);
 
     // Set up the redirect link on the title
     var title = cell2.getElementsByTagName("div")[0];
@@ -113,6 +113,8 @@ function addHistoryRow(key, table) {
         chrome.tabs.create({url: tab.url});
         var row = modalClosedTabs[tab.id]["Row"];
         row.parentNode.removeChild(row);
+        clearInterval(modalClosedTabs[tab.id]["CountUpTimerId"]);
+        delete modalClosedTabs[tab.id];
         delete bg.closedTabs[tab.id];
     });
 }

@@ -5,8 +5,9 @@ modalTabs = {
     tabId: {
         "Row": HTML element,
         "Timer": HTML element,
-        "TimerId": integer (need this to clear timers),
+        "TimerId": integer (need this to clear countdown timer),
         "Pin": HTML element,
+        "CountUpTimerId": integer (need this to clear time-elapsed timer),
     }
 }
 */
@@ -18,6 +19,7 @@ modalClosedTabs = {
     tabId: {
         "Row": HTML element,
         "Timer": HTML element,
+        "CountUpTimerId: integer",
     }
 }
 */
@@ -104,8 +106,9 @@ chrome.runtime.getBackgroundPage(function(background) {
             var row = modalTabs[tabId]["Row"];
             row.parentNode.removeChild(row);
 
-            // Clear UI timer
+            // Clear UI timers
             clearInterval(modalTabs[tabId]["TimerId"]);
+            clearInterval(modalTabs[tab.id]["CountUpTimerId"]);
 
             // Remove tabTimer entry
             delete modalTabs[tabId];

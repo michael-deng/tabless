@@ -1,7 +1,7 @@
 "use strict";
-const DOMException = require("../../web-idl/DOMException");
+const DOMException = require("domexception");
 const reportException = require("../helpers/runtime-script-errors");
-const domSymbolTree = require("../helpers/internal-constants").domSymbolTree;
+const { domSymbolTree } = require("../helpers/internal-constants");
 const idlUtils = require("../generated/utils");
 
 const Event = require("../generated/Event").interface;
@@ -71,10 +71,10 @@ class EventTargetImpl {
 
   dispatchEvent(eventImpl) {
     if (eventImpl._dispatchFlag || !eventImpl._initializedFlag) {
-      throw new DOMException(DOMException.INVALID_STATE_ERR, "Tried to dispatch an uninitialized event");
+      throw new DOMException("Tried to dispatch an uninitialized event", "InvalidStateError");
     }
     if (eventImpl.eventPhase !== Event.NONE) {
-      throw new DOMException(DOMException.INVALID_STATE_ERR, "Tried to dispatch a dispatching event");
+      throw new DOMException("Tried to dispatch a dispatching event", "InvalidStateError");
     }
 
     eventImpl.isTrusted = false;
@@ -87,8 +87,8 @@ class EventTargetImpl {
     eventImpl.target = targetOverride || this;
 
     const eventPath = [];
-    let targetParent = domSymbolTree.parent(eventImpl.target);
-    let target = eventImpl.target;
+    let { target } = eventImpl;
+    let targetParent = domSymbolTree.parent(target);
     while (targetParent) {
       eventPath.push(targetParent);
       target = targetParent;
@@ -172,9 +172,7 @@ function invokeEventListeners(listeners, target, eventImpl) {
     }
 
     const listener = handlers[i];
-    const capture = listener.options.capture;
-    const once = listener.options.once;
-    // const passive = listener.options.passive;
+    const { capture, once/* , passive */ } = listener.options;
 
     if (listeners.indexOf(listener) === -1 ||
         (eventImpl.eventPhase === Event.CAPTURING_PHASE && !capture) ||

@@ -1,10 +1,7 @@
 "use strict";
 const idlUtils = require("../generated/utils");
-const closest = require("../helpers/traversal").closest;
-const isDisabled = require("../helpers/form-controls").isDisabled;
-const isSubmittable = require("../helpers/form-controls").isSubmittable;
-const isButton = require("../helpers/form-controls").isButton;
-const normalizeToCRLF = require("../helpers/form-controls").normalizeToCRLF;
+const { closest } = require("../helpers/traversal");
+const { isDisabled, isSubmittable, isButton, normalizeToCRLF } = require("../helpers/form-controls");
 const Blob = require("../generated/Blob.js");
 const File = require("../generated/File.js");
 const conversions = require("webidl-conversions");
@@ -19,13 +16,6 @@ exports.implementation = class FormDataImpl {
   }
 
   append(name, value, filename) {
-    // Handling this manually for now: https://github.com/jsdom/webidl2js/issues/29
-    if (Blob.is(value) || Blob.isImpl(value)) {
-      value = idlUtils.tryImplForWrapper(value);
-    } else {
-      value = conversions.USVString(value);
-    }
-
     const entry = createAnEntry(name, value, filename);
     this._entries.push(entry);
   }
@@ -48,13 +38,6 @@ exports.implementation = class FormDataImpl {
   }
 
   set(name, value, filename) {
-    // Handling this manually for now: https://github.com/jsdom/webidl2js/issues/29
-    if (Blob.is(value) || Blob.isImpl(value)) {
-      value = idlUtils.tryImplForWrapper(value);
-    } else {
-      value = conversions.USVString(value);
-    }
-
     const entry = createAnEntry(name, value, filename);
 
     const foundIndex = this._entries.findIndex(e => e.name === name);
@@ -138,7 +121,7 @@ function constructTheFormDataSet(form, submitter) {
       continue;
     }
 
-    const type = field.type;
+    const { type } = field;
 
     // Omit special processing of <input type="image"> since so far we don't actually ever pass submitter
 

@@ -1,10 +1,9 @@
 "use strict";
 const path = require("path");
 const whatwgURL = require("whatwg-url");
-const querystring = require("querystring");
-const domSymbolTree = require("./living/helpers/internal-constants").domSymbolTree;
+const { domSymbolTree } = require("./living/helpers/internal-constants");
 const SYMBOL_TREE_POSITION = require("symbol-tree").TreePosition;
-const parseURLToResultingURLRecord = require("./living/helpers/document-base-url").parseURLToResultingURLRecord;
+const { parseURLToResultingURLRecord } = require("./living/helpers/document-base-url");
 
 exports.toFileUrl = function (fileName) {
   // Beyond just the `path.resolve`, this is mostly for the benefit of Windows,
@@ -75,6 +74,17 @@ function addConstant(object, property, value) {
     value
   });
 }
+
+exports.mixin = (target, source) => {
+  const keys = Reflect.ownKeys(source);
+  for (let i = 0; i < keys.length; ++i) {
+    if (keys[i] in target) {
+      continue;
+    }
+
+    Object.defineProperty(target, keys[i], Object.getOwnPropertyDescriptor(source, keys[i]));
+  }
+};
 
 let memoizeQueryTypeCounter = 0;
 
@@ -166,22 +176,6 @@ exports.treeOrderSorter = function (a, b) {
 
   // disconnected or equal:
   return 0;
-};
-
-const base64Regexp = /^(?:[A-Z0-9+/]{4})*(?:[A-Z0-9+/]{2}==|[A-Z0-9+/]{3}=|[A-Z0-9+/]{4})$/i;
-
-exports.parseDataUrl = function parseDataUrl(url) {
-  const urlParts = url.match(/^data:(.+?)(?:;(base64))?,(.*)$/);
-  let buffer;
-  if (urlParts[2] === "base64") {
-    if (urlParts[3] && !base64Regexp.test(urlParts[3])) {
-      throw new Error("Not a base64 string");
-    }
-    buffer = new Buffer(urlParts[3], "base64");
-  } else {
-    buffer = new Buffer(querystring.unescape(urlParts[3]));
-  }
-  return { buffer, type: urlParts[1] };
 };
 
 /* eslint-disable global-require */

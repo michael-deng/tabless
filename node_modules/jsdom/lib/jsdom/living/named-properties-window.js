@@ -3,7 +3,7 @@ const hasOwnProp = Object.prototype.hasOwnProperty;
 const namedPropertiesTracker = require("../named-properties-tracker");
 const NODE_TYPE = require("./node-type");
 const HTMLCollection = require("./generated/HTMLCollection");
-const treeOrderSorter = require("../utils").treeOrderSorter;
+const { treeOrderSorter } = require("../utils");
 const idlUtils = require("./generated/utils");
 
 function isNamedPropertyElement(element) {
@@ -17,7 +17,6 @@ function isNamedPropertyElement(element) {
 
   switch (element.nodeName) {
     case "A":
-    case "APPLET":
     case "AREA":
     case "EMBED":
     case "FORM":
@@ -57,7 +56,7 @@ function namedPropertyResolver(window, name, values) {
     query: getResult
   });
 
-  const length = objects.length;
+  const { length } = objects;
   for (let i = 0; i < length; ++i) {
     const node = objects[i];
 

@@ -46,11 +46,11 @@ var activeTabId;  // The currently active tab's id
 chrome.storage.sync.get(["duration", "threshold"], function(settings) {
     if (!("duration" in settings && "threshold" in settings)) {
         chrome.storage.sync.set({
-            "duration": 300000,
-            "threshold": 5
+            "duration": 1800000,
+            "threshold": 10
         });
-        duration = 300000;
-        threshold = 5;
+        duration = 1800000;
+        threshold = 10;
     } else {
         duration = parseInt(settings["duration"]);
         threshold = parseInt(settings["threshold"]);

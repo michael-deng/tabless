@@ -108,7 +108,7 @@ chrome.runtime.getBackgroundPage(function(background) {
 
             // Clear UI timers
             clearInterval(modalTabs[tabId]["TimerId"]);
-            clearInterval(modalTabs[tab.id]["CountUpTimerId"]);
+            clearInterval(modalTabs[tabId]["CountUpTimerId"]);
 
             // Remove tabTimer entry
             delete modalTabs[tabId];

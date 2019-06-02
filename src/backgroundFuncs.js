@@ -149,6 +149,12 @@ function stopAutoclose() {
     closedTabs[tabId] = tabs[tabId];
     closedTabs[tabId]["Closed"] = Date.now();
 
+    // Prune if too closedTabs gets too large
+    if (Object.keys(closedTabs).length > 500) {
+        sorted = Object.keys(closedTabs).sort(function(a,b){return closedTabs[a]['Closed']-closedTabs[b]['Closed']});
+        delete closedTabs[sorted[0]];
+    }
+
     chrome.runtime.sendMessage({text: "addHistory", tabId: tabId}, function(response) {
         if (chrome.runtime.lastError) {
             console.log('Whoops...' + chrome.runtime.lastError.message);

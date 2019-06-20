@@ -296,7 +296,6 @@ chrome.runtime.getBackgroundPage(function(background) {
 
                 if (Object.keys(bg.tabs).length > bg.threshold) {
                     // Update the timers of every tab
-                    console.log("Start autoclose in settings");
                     chrome.alarms.clearAll();  // Might have to add callback in parameter
                     var end = Date.now() + bg.duration;
                     for (key in bg.tabs) {
@@ -309,7 +308,6 @@ chrome.runtime.getBackgroundPage(function(background) {
                     }
                 } else {
                     // Stop autoclose
-                    console.log("Stop autoclose in settings");
                     chrome.alarms.clearAll();
                     for (key in bg.tabs) {
                         if (!bg.tabs[key]["Pinned"] && key != bg.activeTabId) {
@@ -326,7 +324,6 @@ chrome.runtime.getBackgroundPage(function(background) {
     // Listens for click event that opens the "Settings" page
     document.getElementById("settings-open-btn").firstChild.addEventListener("click", function() {
         settings = document.getElementById("settings");
-        console.log(settings);
         settings.style.left = "0px";
         settings.style.boxShadow = "0 0 50px rgba(0,0,0,0.3)";
     });

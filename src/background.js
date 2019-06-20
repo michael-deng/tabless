@@ -60,7 +60,6 @@ chrome.storage.sync.get(["duration", "threshold"], function(settings) {
     chrome.tabs.query({}, function(tabList) {
         for (var i = 0; i < tabList.length; i++) {
             var tab = tabList[i];
-            console.log('calling addOrUpdateTab');
             addOrUpdateTab(tab.id, tab, duration);
         }
     });
@@ -109,7 +108,6 @@ chrome.tabs.onRemoved.addListener(function(tabId, tab) {
         if (chrome.runtime.lastError) {
             console.log('Whoops...' + chrome.runtime.lastError.message);
         }
-        console.log("got removeTab response");
     });
 
     delete tabs[tabId];
@@ -126,8 +124,6 @@ chrome.tabs.onRemoved.addListener(function(tabId, tab) {
 chrome.alarms.onAlarm.addListener(function(alarm) {
     var tabId = parseInt(alarm["name"]);
 
-    console.log("alarm sounded");
-
     // Don't delete tabs past the threshold
     if (numTabs > threshold) {
         chrome.tabs.remove(tabId);
@@ -138,7 +134,6 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
 
 // Check if computer goes to sleep/wakes up
 chrome.idle.onStateChanged.addListener(function(idleState) {
-    console.log("state changed")
     if (idleState == 'active' && locked && Object.keys(tabs).length > threshold) {
         unpauseAutoclose();
         locked = false;
@@ -167,7 +162,6 @@ chrome.browserAction.onClicked.addListener(function(tab) {
             // No response, inject jquery and content script, then resend message and insert css
             else {
                 if (!injecting) {
-                    console.log("Content script not there, inject jquery, content script, and css");
                     injecting = true;
                     chrome.tabs.executeScript(tab.id, {file: "jquery.min.js"}, function() {
                         if (chrome.runtime.lastError) {

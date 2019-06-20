@@ -2,8 +2,8 @@
     "manifest_version": 2,
 
     "name": "Tabless",
-    "description": "Tabless automatically closes your unused tabs to boost your productivity.",
-    "version": "0.0.0.3",
+    "description": "Tabless automatically closes your inactive tabs to boost productivity and save memory",
+    "version": "0.0.0.4",
 
     "browser_action": {
         "default_icon": "assets/tabless_icon_2.png"

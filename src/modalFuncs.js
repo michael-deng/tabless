@@ -152,7 +152,6 @@ function togglePin(tabId) {
 
     if (bg.tabs[tabId]["Pinned"] == true) {
         // Unpin the tab
-        console.log("unpinning tab");
         pinContainer.children[0].style.display = "none";
         pinContainer.children[1].style.display = "initial";
         bg.tabs[tabId]["Pinned"] = false;
@@ -167,7 +166,6 @@ function togglePin(tabId) {
         }
     } else {
         // Pin the tab
-        console.log("pinning tab");
         pinContainer.children[0].style.display = "initial";
         pinContainer.children[1].style.display = "none";
         bg.tabs[tabId]["Pinned"] = true;
@@ -214,14 +212,21 @@ function setCountdownTimer(countDownDate, element) {
     var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
     // Display the result in the element with id="demo"
-    element.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+    // element.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
 
-    // if (distance < 60000) {
-    //   element.innerHTML = "Less than a minute left";
-    // } 
-
-    // If the countdown is finished, write some text 
-    if (distance < 5000) {
+    if (days >= 1) {
+        element.innerHTML = `${days + 1} days left`;
+    } else if (hours == 23) {
+        element.innerHTML = `1 day left`;
+    } else if (hours >= 1) {
+        element.innerHTML = `${hours + 1} hours left`;
+    } else if (minutes == 59) {
+        element.innerHTML = `1 hour left`;
+    } else if (minutes >= 1) {
+        element.innerHTML = `${minutes + 1} minutes left`;
+    } else if (seconds > 5) {
+        element.innerHTML = `1 minute left`;
+    } else {
         clearInterval(this);
         element.innerHTML = "A few seconds left";
     }

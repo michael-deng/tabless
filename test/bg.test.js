@@ -30,7 +30,7 @@ describe('background page', function() {
                     title: 'Google'
                 },
                 Pinned: false
-            }
+            },
         };
 
         aboveThresholdTabs = {
@@ -81,7 +81,47 @@ describe('background page', function() {
                     title: 'Google'
                 },
                 Pinned: false
-            }
+            },
+            86: {
+                Tab: {
+                    favIconUrl: 'https://www.google.ru/favicon.ico',
+                    id: 86,
+                    title: 'Google'
+                },
+                Pinned: false
+            },
+            87: {
+                Tab: {
+                    favIconUrl: 'https://www.google.ru/favicon.ico',
+                    id: 87,
+                    title: 'Google'
+                },
+                Pinned: false
+            },
+            88: {
+                Tab: {
+                    favIconUrl: 'https://www.google.ru/favicon.ico',
+                    id: 88,
+                    title: 'Google'
+                },
+                Pinned: false
+            },
+            89: {
+                Tab: {
+                    favIconUrl: 'https://www.google.ru/favicon.ico',
+                    id: 89,
+                    title: 'Google'
+                },
+                Pinned: false
+            },
+            90: {
+                Tab: {
+                    favIconUrl: 'https://www.google.ru/favicon.ico',
+                    id: 90,
+                    title: 'Google'
+                },
+                Pinned: false
+            },
         };
 
         // Set up mocks
@@ -207,12 +247,12 @@ describe('background page', function() {
         sinon.assert.calledOnce(chrome.runtime.sendMessage);
         sinon.assert.calledOnce(chrome.alarms.clear);
         sinon.assert.calledOnce(window.stopAutoclose);
-        assert.equal(Object.keys(window.tabs).length, 5);
+        assert.equal(Object.keys(window.tabs).length, 10);
     });
 
     it('should not remove tab when onAlarm is called under threshold', function() {
         window.tabs = belowThresholdTabs;
-        window.numTabs = 2;
+        window.numTabs = Object.keys(window.tabs).length;
 
         chrome.alarms.onAlarm.dispatch({name: '80'});
 
@@ -222,7 +262,7 @@ describe('background page', function() {
 
     it('should remove tab when onAlarm is called above threshold', function() {
         window.tabs = aboveThresholdTabs;
-        window.numTabs = 6;
+        window.numTabs = Object.keys(window.tabs).length;
         
         chrome.alarms.onAlarm.dispatch({name: '80'});
 
@@ -252,10 +292,10 @@ describe('background page', function() {
         sinon.assert.calledOnce(chrome.runtime.sendMessage);
         sinon.assert.notCalled(window.startAutoclose);
         sinon.assert.notCalled(chrome.alarms.create);
-        assert.equal(Object.keys(window.tabs).length, 6);
+        assert.equal(Object.keys(window.tabs).length, 11);
     });
 
-    it('should call startAutoclose after AddOrUpdateTab is called 6 times', function() {
+    it('should call startAutoclose after AddOrUpdateTab is called 11 times', function() {
         window.tabs = belowThresholdTabs;
 
         window.addOrUpdateTab.restore();  // Restore stubbed method
@@ -264,8 +304,13 @@ describe('background page', function() {
         window.addOrUpdateTab(83);
         window.addOrUpdateTab(84);
         window.addOrUpdateTab(85);
+        window.addOrUpdateTab(86);
+        window.addOrUpdateTab(87);
+        window.addOrUpdateTab(88);
+        window.addOrUpdateTab(89);
+        window.addOrUpdateTab(90);
 
-        sinon.assert.callCount(chrome.runtime.sendMessage, 4);
+        sinon.assert.callCount(chrome.runtime.sendMessage, 9);
         sinon.assert.calledOnce(window.startAutoclose);
     });
 

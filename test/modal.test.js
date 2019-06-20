@@ -134,7 +134,7 @@ describe('modal page with less than threshold tabs', function() {
     it('should handle removeTab command', function() {
         chrome.runtime.onMessage.dispatch({text: 'removeTab', tabId: '81'}, null, null);
 
-        sinon.assert.calledOnce(window.clearInterval);
+        sinon.assert.calledTwice(window.clearInterval);
         assert.equal(window.document.getElementById('tabs-table').rows.length, 1);
         assert.equal(Object.keys(window.modalTabs).length, 1);
     });

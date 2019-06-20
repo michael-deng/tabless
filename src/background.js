@@ -42,15 +42,18 @@ var locked = false;  // We use this locked variable to ensure we only call unpau
 var closedTabs = {};  // Tabs that have been closed via autoclose
 var activeTabId;  // The currently active tab's id
 
+const default_duration = 1800000;
+const default_threshold = 10;
+
 // Get duration and threshold when chrome starts
 chrome.storage.sync.get(["duration", "threshold"], function(settings) {
     if (!("duration" in settings && "threshold" in settings)) {
         chrome.storage.sync.set({
-            "duration": 1800000,
-            "threshold": 10
+            "duration": default_duration,
+            "threshold": default_threshold,
         });
-        duration = 1800000;
-        threshold = 10;
+        duration = default_duration;
+        threshold = default_threshold;
     } else {
         duration = parseInt(settings["duration"]);
         threshold = parseInt(settings["threshold"]);

@@ -3,7 +3,7 @@
 
     "name": "Tabless",
     "description": "Tabless automatically closes your inactive tabs to boost productivity and save memory",
-    "version": "0.0.0.4",
+    "version": "0.0.0.5",
 
     "browser_action": {
         "default_icon": "assets/tabless_icon_2.png"
